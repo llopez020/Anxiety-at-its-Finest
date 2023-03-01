@@ -5,15 +5,20 @@ __lua__
 function _init()
 cls()
 
+ objlist=nil
+
 #include collision.lua
 
 --debug switch
-debugint=0
+debugint=1
 
 mode = "initdebug"
 
-player = create_object(0,20,20,8,8)
-test = create_object(1,80,40,16,16)
+player = create_object("player",0,0,0,8,8)
+create_object("wall",1,80,40,16,16)
+create_object("wall",1,20,100,16,16)
+create_object("wall",1,40,120,16,16)
+create_object("wall",1,40,60,16,16)
 
 end
 -->8
@@ -24,7 +29,6 @@ if mode=="initdebug" then initdebug() end
 if mode=="test" then testmode() end
 if mode=="test2" then testmode2() end
 
-
 end
 -->8
 -- test - test mode
@@ -32,16 +36,40 @@ function testmode()
 
 cls()
 
-test.draw(test)
-player.draw(player)
+drawallobj()
 
-if btn(1) and sprcoll(player.x,player.y-1,player.width+2,player.height+2,test.x,test.y,test.width,test.height)==false then player.x=player.x+1 end
-if btn(0) and sprcoll(player.x-2,player.y-1,player.width+2,player.height+2,test.x,test.y,test.width,test.height)==false then player.x=player.x-1 end
-if btn(2) and sprcoll(player.x-1,player.y-2,player.width+2,player.height+2,test.x,test.y,test.width,test.height)==false then player.y=player.y-1 end
-if btn(3) and sprcoll(player.x-1,player.y,player.width+2,player.height+2,test.x,test.y,test.width,test.height)==false then player.y=player.y+1 end
+if debugint==1 then printlist() end
+if btn(1) then player.x=player.x+1 checkallcol(player) end
+if btn(0) then player.x=player.x-1 checkallcol(player) end
+if btn(2) then player.y=player.y-1 checkallcol(player) end
+if btn(3) then player.y=player.y+1 checkallcol(player) end
 
 end
 
+function drawallobj()
+ 	local temp = objlist
+		while temp do
+			temp.value.draw(temp.value)
+			temp = temp.next
+		end
+end
+
+function checkallcol(obj1)
+ 	local temp = objlist
+		while temp do
+			if (obj1.id!=temp.value.id and checkcol(obj1, temp.value)==true) then return end
+			temp = temp.next
+		end
+		obj1.oldx=obj1.x
+		obj1.oldy=obj1.y
+end
+
+function checkcol(obj1, obj2)
+ bool = sprcoll(obj1.x,obj1.y,obj1.width,obj1.height,obj2.x,obj2.y,obj2.width,obj2.height)
+	if bool==true then obj1.x=obj1.oldx obj1.y=obj1.oldy end 
+	return bool
+end
+ 
 function testmode2()
 
 cls()
@@ -60,23 +88,46 @@ if btn(5) then mode = "test2" end
 
 end
 -->8
--- create_object(sprite number, x position, y position, object width, object height)
-function create_object(rsprite,rx,ry,rwidth,rheight)
+-- create_object(unique id,sprite number, x position, y position, object width, object height)
+function create_object(uid,rsprite,rx,ry,rwidth,rheight)
 a={
+oldx = rx, --previous x
+oldy = ry, --previous y
 sprite=rsprite, --sprite number
 x=rx, --x position
-y=rx, --y position
+y=ry, --y position
 width=rwidth, --object width
-height=rheight --object height
+height=rheight, --object height
+id=uid, --unique id
 }
 
 	function a.draw(obj)
 		spr(obj.sprite,obj.x,obj.y,obj.width/8,obj.height/8)
 	end
 
+addtolist(a)
+
 return a
 end
 
+ 
+function addtolist(a)
+ 	objlist= {
+ 		next=objlist,
+ 		value=a
+ 	}
+ 	print("added object"..a.sprite.."\n")
+end
+ 
+ function printlist()
+  local temp = objlist
+  print("object list:")
+		while temp do
+			print(temp.value.id)
+			temp = temp.next
+		end
+	end
+	
 __gfx__
 66666666555555555555555500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 66066066556666666666667500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
