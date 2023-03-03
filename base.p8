@@ -8,9 +8,15 @@ cls()
  objlist=nil
 
 #include collision.lua
+#include animation.lua
 
 --debug switch
 debugint=1
+
+--animation test vars
+start_animate = 1
+sprite_animation = {24,25}
+--
 
 mode = "initdebug"
 
@@ -75,9 +81,28 @@ end
  
 function testmode2()
 
-cls()
+cls(14)
 
 print"hello, this is a test mode."
+--begin animation showcase
+if(start_animate == 1) then
+	animate_once(30,30,{0,1,2},1,1,30,2)
+	animate_once(30+8,30,{3,4,5},1,1,15,3)
+	animate_once(30+8+8,30,{6,7,8},1,1,15,2)
+	animate_once(30+8+8+8,30,{6,7},1,1,10,2)
+	start_animate = 0
+end
+print("these animations are called once",0,30+8)
+print("animations currently playing: "..#animation_data_once,0,30+8+8)
+if(#animation_data_once == 0) then
+	start_animate = 1
+end
+
+animate(sprite_animation,30,30+8+8+8,sprite_animation,1,1,10)
+print("this animation is continuous",0,30+8+8+8+8)
+
+handle_animations()
+--end animation showcase
 end
 
 function initdebug()
