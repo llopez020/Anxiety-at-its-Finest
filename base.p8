@@ -41,6 +41,12 @@ player = create_object("player",0,0,0,4,7) -- creates player object with sprite 
 palt(11, true) -- green color as transparency is true
 palt(0, false) -- black color as transparency is false
 
+--Jumping Mecahinc
+jump_height = 0
+y_force = 0
+jump_allowed = true
+
+
 end
 -->8
 -- update - called on every frame
@@ -49,6 +55,8 @@ function _update60()
 if mode=="initdebug" then initdebug() end -- debug menu
 if mode=="test" then testmode() end -- game test
 if mode=="test2" then testmode2() end -- anim test
+if mode=="test3" then testmode3() end -- Gravity with landing particles 
+
 
 end
 -->8
@@ -197,10 +205,12 @@ function initdebug()
 
 cls()
 
-print"press 🅾️ for mode 1,\npress ❎ for mode 2"
+print"press 🅾️ for mode 1,\npress ❎ for mode 2 \n press down arrow for mode 3"
 
 if btn(4) then mode = "test" end
 if btn(5) then mode = "test2" end
+if btn(3) then mode = "test3" end -- Mode 3 for testing 
+
 
 end
 
@@ -211,6 +221,98 @@ function loadmap()
 	 end
 	end
 end
+
+-->8
+-- Test mode 3 for objects 
+function testmode3()
+
+cls() --Clearing the screen
+
+drawallobj() --This function draws all the items in the screen
+
+if debugint==1 then print(stat(7).." fps\n",0,0,7) end
+
+spd=1
+-- X cordinate movement
+if btn(1) then player.x=player.x+spd checkallcol(player) mapx+=.125*spd end
+if btn(0) then player.x=player.x-spd checkallcol(player) mapx-=.125*spd end
+-- Y cordinate movement
+
+
+if btn(2) and jump_height < 10 and jump_allowed 
+then player.y=player.y-spd checkallcol(player) mapy-=.125*spd 
+y_force = -3 
+jump_height += 1
+else 
+if not checkallcol(player) then
+player.y = player.y - y_force checkallcol(player)
+end
+if jump_height == 10 or not jump_allowed and checkallcol(player) then 
+
+	jump_allowed = false
+	jump_height = 0 
+	y_force -=1
+
+end 
+end
+
+
+
+
+if btn(3) then player.y=player.y+spd checkallcol(player) mapy+=.125*spd end
+
+
+
+
+
+
+function moveallx()
+	local temp = objlist
+	   while temp do
+		   if (player.id!=temp.value.id) then temp.value.x=temp.value.x+(8*(oldmapx-mapx)) end
+		   temp = temp.next
+	   end
+end
+
+function moveally()
+	local temp = objlist
+	   while temp do
+		   if (player.id!=temp.value.id) then temp.value.y=temp.value.y+(8*(oldmapy-mapy)) end
+		   temp = temp.next
+	   end
+end
+
+function drawallobj()
+	local temp = objlist
+	   while temp do
+		   temp.value.draw(temp.value)
+		   temp = temp.next
+	   end
+end
+
+function checkallcol(obj1)
+	local temp = objlist
+	   while temp do
+		if (abs(obj1.x-temp.value.x)>obj1.width*2 or abs(obj1.y-temp.value.y)>obj1.height*2) then goto continue end
+		   if (obj1.id!=temp.value.id and checkcol(obj1, temp.value)==true) then return end
+		   ::continue::
+		   temp = temp.next
+	   end
+	   obj1.oldx=obj1.x
+	   obj1.oldy=obj1.y
+end
+
+function checkcol(obj1, obj2)
+bool = sprcoll(obj1.x,obj1.y,obj1.width,obj1.height,obj2.x,obj2.y,obj2.width,obj2.height)
+   if bool==true then obj1.x=obj1.oldx obj1.y=obj1.oldy end 
+   return bool
+end
+
+
+
+
+end ---- END MODE 3  
+
 
 -->8
 -- create_object(unique id,sprite number, x position, y position, object width, object height)
