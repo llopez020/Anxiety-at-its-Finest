@@ -5,32 +5,38 @@ __lua__
 function _init()
 cls()
 
- objlist=nil
+objlist=nil
 
 #include collision.lua
 #include animation.lua
 
 --debug switch
-debugint=1
-debugprint=0
+debugint=1 -- shows collision boxes and coords
+debugprint=0 -- shows object list
 
 --animation test vars
 start_animate = 1
 sprite_animation = {24,25}
 
-grav=2
-gravspd=2
-mapx=0
-mapy=0
-oldmapx=0
-oldmapy=0
-mapwidth=30
-mapheight=30
 
-mode = "initdebug"
+grav=2 -- gravity unused
+gravspd=2 -- gravity unused
+mapx=0 -- map x pos
+mapy=0 -- map y pos
+oldmapx=0 -- map pos in previous frame
+oldmapy=0 -- map pos in previous frame
 
-loadmap()
-player = create_object("player",0,0,0,4,7)
+
+mapwidth=30 -- map width
+mapheight=30 -- map height
+
+spd=.5 -- movement speed
+
+mode = "initdebug" -- sets mode to debug menu
+
+loadmap() -- converts pico-8 map into objects
+
+player = create_object("player",0,0,0,4,7) -- creates player object with sprite 0
 
 palt(11, true) -- green color as transparency is true
 palt(0, false) -- black color as transparency is false
@@ -40,9 +46,9 @@ end
 -- update - called on every frame
 function _update60()
 
-if mode=="initdebug" then initdebug() end
-if mode=="test" then testmode() end
-if mode=="test2" then testmode2() end
+if mode=="initdebug" then initdebug() end -- debug menu
+if mode=="test" then testmode() end -- game test
+if mode=="test2" then testmode2() end -- anim test
 
 end
 -->8
@@ -51,40 +57,50 @@ function testmode()
 
 cls()
 
-drawallobj()
+drawallobj() -- draws objects on to screen
 
+-- fps debug
 if debugint==1 then print(stat(7).." fps\n",0,0,7) end
 
+-- sets initial pos, should not be changed
 player.oldx=player.x player.oldy=player.y olddmapx=mapx olddmapy=mapy
 
-spd=.5
+-- print object list
 if debugprint==1 then printlist() end
+
+-- player movement controls: updates player pos, map pos, and then checks for collision. if collides, sends back to old position
 if btn(1) then player.x=player.x+spd mapx+=.125*spd checkallcol(player,0) end
 if btn(0) then player.x=player.x-spd mapx-=.125*spd checkallcol(player,0) end
 if btn(2) then player.y=player.y-spd mapy-=.125*spd checkallcol(player,1) end
 if btn(3) then player.y=player.y+spd mapy+=.125*spd checkallcol(player,1) end
+
+-- unfinished gravity code
 //if checkallcol(player)==false then player.y=player.y+grav mapy+=.125*grav checkallcol(player) end
 //if player.y==player.oldy then player.y=player.y-gravspd end
 
+-- moves map if player is in middle of screen
 if player.x<0 then player.x=0 end
 if player.x>=128-player.width then player.x=128-player.width end
 if player.x>64 and mapx<mapwidth-8 then player.x=64 end
 if player.x<64 and mapx>=0+8 then player.x=64 end
-
 if player.y<0 then player.y=0 end
 if player.y>=128-player.height then player.y=128-player.height end
 if player.y>64 and mapy<mapheight-8 then player.y=64 end
 if player.y<64 and mapy>=0+8 then player.y=64 end
-//if player.x<=0 and mapx<=0 then player.x=playeroldx end
-//if player.x>128-8 and mapx<=128-8 then player.x=playeroldy end
+
+
+-- moves all objects to correct map position
 if player.x==64 and player.x==player.oldx and player.x!=0 then moveallx() end
 if player.y==64 and player.y==player.oldy and player.y!=0 then moveally() end
-//if player.y==playeroldy then else moveally() end
+
+-- prints map pos
 print((ceil(mapx*8)).." "..ceil(player.x),40,0,7)
 print((ceil(mapy*8)).." "..ceil(player.y),40,9,7)
 
 end
 
+
+-- moves all objects in the x direction if not player
 function moveallx()
  	local temp = objlist
 		while temp do
@@ -93,6 +109,8 @@ function moveallx()
 		end
 end
 
+
+-- moves all objects in the y direction if not player
 function moveally()
  	local temp = objlist
 		while temp do
@@ -101,6 +119,8 @@ function moveally()
 		end
 end
 
+
+-- draws all nearby objects
 function drawallobj()
  	local temp = objlist
 		while temp do
@@ -109,24 +129,41 @@ function drawallobj()
 		end
 end
 
+
+-- checks if object collides. if so, revert object to last position depending on x_y
+-- checkallcol(obj1 = object to be checked, x_y = direction to be checked (0 = x, 1 = y))
 function checkallcol(obj1,x_y)
  	local temp = objlist
+		-- go through object list
 		while temp do
+		 -- if object is too far, skip
 		 if (abs(obj1.x-temp.value.x)>obj1.width*2 or abs(obj1.y-temp.value.y)>obj1.height*2) then goto continue end
+			
+			-- if object is not the object being checked, check for collision
 			if (obj1.id!=temp.value.id and checkcol(obj1, temp.value,x_y)==true) then	return true end
 			::continue::
 			temp = temp.next
 		end
+
+		-- if object is not the player, update oldx and oldy depending on x_y
 		if obj1.id!="player" then if x_y == 0 then obj1.oldx=obj1.x else obj1.oldy=obj1.y end end
+
+  -- if object is player, update olddmap
 		if obj1.id=="player" then oldmapx=mapx oldmapy=mapy end 
+
+		-- no collision occurred
 		return false
 end
 
+-- checks for collision between two objects
 function checkcol(obj1, obj2,x_y)
  bool = sprcoll(obj1.x,obj1.y,obj1.width,obj1.height,obj2.x,obj2.y,obj2.width,obj2.height)
+ 
+ -- if collision occurs, send back to old pos based on x_y, else return false
 	if bool==true then if x_y==0 then obj1.x=obj1.oldx else obj1.y=obj1.oldy end
 			if obj1.id=="player" then mapx=oldmapx mapy=oldmapy end 
 	end 
+	
 	return bool
 end
  
@@ -187,10 +224,11 @@ y=ry, --y position
 width=rwidth, --object width
 height=rheight, --object height
 id=uid, --unique id
-mapx,
-mapy
+mapx, --map x pos
+mapy -- map y pos
 }
 
+ -- draws obj
 	function a.draw(obj)
 		spr(obj.sprite,obj.x,obj.y,obj.width/8,obj.height/8)
 	end
