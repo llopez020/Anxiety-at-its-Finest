@@ -23,8 +23,23 @@ anxiety_animation3 = {64,72,128,136,128,72}
 bounce = 0
 --
 
-grav=2 -- gravity unused
-gravspd=2 -- gravity unused
+
+-- Jumping Mechanics
+onground = true
+jumping = false
+y_jump  = 120
+vy = 0
+ay = 0
+
+max_height = -20            -- height
+gravity = 0.15              -- grav
+initial_acceleration = -0.45 -- acc
+alpha = 0.06				-- alpha           
+
+
+
+-- end
+
 
 mapwidth=30 -- map width
 mapheight=30 -- map height
@@ -293,6 +308,11 @@ function testmode3()
 
 cls() --Clearing the screen
 
+-- Charachter still animation falling down
+
+vel = 1.25 -- Edit this for natural falling speed 
+
+
 drawallobj() --This function draws all the items in the screen
 
 if debugint==1 then print(stat(7).." fps\n",0,0,7) end
@@ -304,30 +324,46 @@ if btn(0) then player.x=player.x-spd checkallcol(player) mapx-=.125*spd end
 -- Y cordinate movement
 
 
-if btn(2) and jump_height < 10 and jump_allowed 
-then player.y=player.y-spd checkallcol(player) mapy-=.125*spd 
-y_force = -3 
-jump_height += 1
-else 
-if not checkallcol(player) then
-player.y = player.y - y_force checkallcol(player)
-end
-if jump_height == 10 or not jump_allowed and checkallcol(player) then 
+--Code that makes the player jump and fall if not doing nothing 
+if btn(2) and onground
+then 
+player.y=player.y-spd checkallcol(player) mapy-=.125*spd
+ay = initial_acceleration
+onground = false
+jumping = true
+elseif btn(2) and jumping then
 
-	jump_allowed = false
-	jump_height = 0 
-	y_force -=1
+	player.y=player.y-spd checkallcol(player) mapy-=.125*spd
+	ay += alpha
+	if ay > gravity then
+		ay = gravity
+		jumping = false
+	end
+else 
+	ay = gravity
+	jumping = false
+	player.y=player.y+vel checkallcol(player) mapy+=.125*vel
 
 end 
+
+vy += ay 
+y_jump += vy-- i dont think this is in use !
+
+---HELP I CANT NOT FIND A WAY TO DETECT IF THE PLAYER IS ON THE GROUND OR NOT
+
+if mget (player.x , player.y + 1) == true then
+	onground = true
+	vy = 0
 end
+
+
+-- END OF JUMPING CODE
+
 
 
 
 
 if btn(3) then player.y=player.y+spd checkallcol(player) mapy+=.125*spd end
-
-
-
 
 
 
@@ -372,8 +408,6 @@ bool = sprcoll(obj1.x,obj1.y,obj1.width,obj1.height,obj2.x,obj2.y,obj2.width,obj
    if bool==true then obj1.x=obj1.oldx obj1.y=obj1.oldy end 
    return bool
 end
-
-
 
 
 end ---- END MODE 3  
