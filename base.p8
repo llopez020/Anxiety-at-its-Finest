@@ -12,7 +12,7 @@ objlist=nil
 #include building_generator.lua
 
 --debug switch
-debugint=1 -- shows collision boxes and coords
+debugint=0 -- shows collision boxes and coords
 debugprint=0 -- shows object list
 
 --animation test vars
@@ -64,9 +64,9 @@ jump_strength = 5000.0
 mapwidth=40 -- map width
 mapheight=15 -- map height
 
-mode = "initdebug" -- sets mode to debug menu
+mode = "test" -- sets mode to debug menu
 
-player = create_object("player",0,0,0,4,6) -- creates player object with sprite 0
+player = create_object("player",0,10,50,4,7) -- creates player object with sprite 0
 loadmap() -- converts pico-8 map into objects
 
 mapx=player.x/8 -- map x pos
@@ -159,13 +159,13 @@ else
 	if(player.dir == 1) then
 		animate(jump_animation,player.x+1,player.y,jump_animation,1,1,10,false)
 	else
-		animate(jump_animation,player.x-4,player.y,jump_animation,1,1,10,true)
+		animate(jump_animation,player.x-5,player.y,jump_animation,1,1,10,true)
 	end
 	button=1 --janky
 end
 
-if btn(1) and onground==true then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,false) button=1 end
-if btn(0) and onground==true then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,true) button=0 end
+if btn(1) and onground==true then animate(run_animation,player.x-2,player.y+1,run_animation2,1,1,10,false) button=1 end
+if btn(0) and onground==true then animate(run_animation,player.x-3,player.y+1,run_animation2,1,1,10,true) button=0 end
 
 ---- player movement controls: updates player pos, map pos, and then checks for collision. if collides, sends back to old position
 --if btn(1) then player.x=player.x+spd mapx+=.125*spd checkallcol(player,0) player.dir=1 end
@@ -314,7 +314,7 @@ function checkallcol(obj1,x_y)
 		while temp do
 		 -- if object is too far, skip
 		 if temp.value.id=="bg" or temp.value.id=="blob" then goto continue end
-		 if (abs(obj1.x-temp.value.x)>obj1.width*3 or abs(obj1.y-temp.value.y)>obj1.height*3) then goto continue end
+		 if (abs(obj1.x-temp.value.x)>obj1.width*4 or abs(obj1.y-temp.value.y)>obj1.height*4) then goto continue end
 			
 			-- if object is not the object being checked, check for collision
 			if (obj1!=temp.value and temp.value.id!="bg" and checkcol(obj1, temp.value,x_y)==true) then if x_y==1 then obj1.floor=1 end return true end
@@ -431,12 +431,12 @@ function loadmap()
 	 end
 	end
 	
-	for i=0,mapwidth,3 do
+	for i=0,mapwidth,2 do
 	 create_object("wall",255,i*8,-8,8*3,8)
 	 create_object("wall",255,i*8,(mapheight)*8,8*3,8)
 	end
 	
-	for i=0,mapwidth,3 do
+	for i=0,mapheight,3 do
 	 create_object("wall",255,-8,i*8,8,8*3)
 	 create_object("wall",255,(mapwidth)*8,i*8,8,8*3)
 	end
@@ -551,7 +551,7 @@ floor=0 -- landed or not
 
  -- draws obj
 	function a.draw(obj)
-	 if obj.id=="player" then if button==-1 then 		spr(obj.sprite,obj.x,obj.y,obj.width/8,obj.height/8) end
+	 if obj.id=="player" then if button==-1 then spr(obj.sprite,obj.x,obj.y+1,obj.width/8,obj.height/8) end
 		else 
 			spr(obj.sprite,obj.x,obj.y,obj.width/8,obj.height/8)
 	 end
@@ -584,13 +584,13 @@ end
 	end
 	
 __gfx__
-04406666046666664066666666604666666046666660466666604666046666666666666666666666666666666c6666c66c6666c6444444446688666666666666
-0ff066660f666666f06666666660f6666660f6666660f6666660f6660f6666660466666666666666f44f6666c6c66c6cc6c66c6c44444444688668666dd6dd66
-dddd6666dd666666dd66666666ddd66666ddd66666ddd66666ddd666dd6666660f66666666666666dffd6666c6c00c6c66c00c664444444489866686dccd77d6
-dddd6666dd666666dd66666666fddf6666fddf6666fddf6666fddf66dd666666ddf6666666666666dddd666666044066c604406c4444444489866698dcccccd6
-fccf6666fc666666cf666666666dd666666dd666666dd666666dd666fc666666dd666666666666666dd66666c6dddd6c66dddd664444444489a666986dcccd66
-6cc666666c666666c666666660c6166666c166666016c666661c6666cc666666ccc666664fddc6666cc6666666dccd66c6dccd6c4444444489aaaa8666dcd666
-61166666616666661666666666660666660066666666066666006666006666666606666600ddfc0660066666c6f00f6c66f00f6644444444689aa986666d6666
+04406666046666664066666666604666666046666660466666604666046666660466666666666666666666666c6666c66c6666c6444444446688666666666666
+0ff066660f666666f06666666660f6666660f6666660f6666660f6660f6666660f66666666666666f44f6666c6c66c6cc6c66c6c44444444688668666dd6dd66
+dddd6666dd666666dd66666666ddd66666ddd66666ddd66666ddd666dd666666ddf6666666666666dffd6666c6c00c6c66c00c664444444489866686dccd77d6
+dddd6666dd666666dd66666666fddf6666fddf6666fddf6666fddf66dd666666dd66666666666666dddd666666044066c604406c4444444489866698dcccccd6
+fccf6666fc666666cf666666666dd666666dd666666dd666666dd666fc666666ccc66666666666666dd66666c6dddd6c66dddd664444444489a666986dcccd66
+6cc666666c666666c666666660c6166666c166666016c666661c6666cc666666660666664fddc6666cc6666666dccd66c6dccd6c4444444489aaaa8666dcd666
+61166666616666661666666666660666660066666666066666006666006666666666666600ddfc0660066666c6f00f6c66f00f6644444444689aa986666d6666
 66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666444444446689986666666666
 66666666600666660066666600666666644666666446666644666666655666666556666655666666644666664466666644666666646696664444444466666666
 622622666ff66666ff666666ff6666666ff666664ff66666ff4666666ff666665ff66666ff566666644666664466666644666666496664664442444466666666
