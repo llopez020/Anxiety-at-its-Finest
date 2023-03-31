@@ -20,6 +20,7 @@ start_animate = 1
 sprite_animation = {24,25}
 run_animation = {3,4,5,6}
 run_animation2 = {3,4,5,6}
+jump_animation = {8}
 anxiety_animation = {64,72,128,136,128,72}
 anxiety_animation2 = {64,72,128,136,128,72}
 anxiety_animation3 = {64,72,128,136,128,72}
@@ -41,9 +42,20 @@ button=-1
 max_height = -20            -- height
 gravity = 0.15              -- grav
 initial_acceleration = -0.5*4 -- acc
-alpha = 0.06				-- alpha           
+alpha = 0.06				-- alpha     
 
 
+--begin tinker
+delta_t = 1.0/60.0
+delta_x = 0
+delta_y = 0
+velocity_x=0.0
+velocity_y=0.0
+player_speed = 400.0
+gravity_strength = 200.0
+friction_strength = 10.0
+jump_strength = 5000.0
+-- stop tinker
 
 -- end
 
@@ -110,43 +122,87 @@ player.oldx=player.x player.oldy=player.y olddmapx=mapx olddmapy=mapy
 -- print object list
 if debugprint==1 then printlist() end
 
--- player movement controls: updates player pos, map pos, and then checks for collision. if collides, sends back to old position
-if btn(1) then player.x=player.x+spd mapx+=.125*spd checkallcol(player,0) player.dir=1 end
-if btn(0) then player.x=player.x-spd mapx-=.125*spd checkallcol(player,0) player.dir=2 end
-//if btn(2) then player.y=player.y-spd mapy-=.125*spd checkallcol(player,1) end
-//if btn(3) then player.y=player.y+spd mapy+=.125*spd checkallcol(player,1) end
-if btn(1) and jumping==false and falling==false then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,false) button=0 end
-if btn(0) and jumping==false and falling==false then animate(run_animation,player.x-2,player.y,run_animation,1,1,10,true) button=1 end
-//print (player.floor)
-falling=false
+--begin movement code
+velocity_y += gravity_strength*delta_t
+velocity_x -= velocity_x*friction_strength*delta_t
 
-if btn(4) and player.floor==1 then 
-	player.y=player.y-spd mapy-=.125*spd checkallcol(player,1)
-	ay = initial_acceleration
-	player.floor = 0
-	jumping = true
- //button=3
-// animate_once(player.x,player.y,{6,7,8},1,1,15,1,true)	
-elseif btn(4) and jumping then
-	player.y=player.y-spd mapy-=.125*spd checkallcol(player,1)
-	ay += alpha
-	if ay > gravity then
-		ay = gravity
-		jumping = false
+if btn(1) then velocity_x += player_speed*delta_t player.dir=1 end
+if btn(0) then velocity_x -= player_speed*delta_t player.dir=2 end
+if btn(4) and onground==true then velocity_y -= jump_strength*delta_t end
+
+player.x=player.x+(velocity_x*delta_t) mapx+=.125*(velocity_x*delta_t)
+if(checkallcol(player,0)) then
+	velocity_x = 0
+end
+
+print(onground)
+print(velocity_x)
+print(velocity_y)
+
+player.y=player.y+(velocity_y*delta_t) mapy+=.125*(velocity_y*delta_t)
+if(checkallcol(player,1)) then
+	if(velocity_y > 0) then
+		onground = true
+	else
+		onground = false
+		if(player.dir == 1) then
+			animate(jump_animation,player.x-2,player.y,jump_animation,1,1,10,false)
+		else
+			animate(jump_animation,player.x-2,player.y,jump_animation,1,1,10,true)
+		end
+		button=1 --janky
 	end
-	//button=3
-else 
-	ay = gravity
-	jumping = false
-	player.y=player.y+vel mapy+=.125*vel if checkallcol(player,1)==false then falling=true end
-end 
+	velocity_y = 0	
+else
+	onground = false
+	if(player.dir == 1) then
+		animate(jump_animation,player.x-2,player.y,jump_animation,1,1,10,false)
+	else
+		animate(jump_animation,player.x-2,player.y,jump_animation,1,1,10,true)
+	end
+	button=1 --janky
+end
 
-//vy += ay 
-//y_jump += vy-- i dont think this is in use !
+if btn(1) and onground==true then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,false) button=1 end
+if btn(0) and onground==true then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,true) button=0 end
 
--- unfinished gravity code
-//if checkallcol(player)==false then player.y=player.y+grav mapy+=.125*grav checkallcol(player) end
-//if player.y==player.oldy then player.y=player.y-gravspd end
+---- player movement controls: updates player pos, map pos, and then checks for collision. if collides, sends back to old position
+--if btn(1) then player.x=player.x+spd mapx+=.125*spd checkallcol(player,0) player.dir=1 end
+--if btn(0) then player.x=player.x-spd mapx-=.125*spd checkallcol(player,0) player.dir=2 end
+--//if btn(2) then player.y=player.y-spd mapy-=.125*spd checkallcol(player,1) end
+--//if btn(3) then player.y=player.y+spd mapy+=.125*spd checkallcol(player,1) end
+--if btn(1) and jumping==false and falling==false then animate(run_animation,player.x-2,player.y,run_animation2,1,1,10,false) button=0 end
+--if btn(0) and jumping==false and falling==false then animate(run_animation,player.x-2,player.y,run_animation,1,1,10,true) button=1 end
+--//print (player.floor)
+--falling=false
+--
+--if btn(4) and player.floor==1 then 
+--	player.y=player.y-spd mapy-=.125*spd checkallcol(player,1)
+--	ay = initial_acceleration
+--	player.floor = 0
+--	jumping = true
+-- //button=3
+--// animate_once(player.x,player.y,{6,7,8},1,1,15,1,true)	
+--elseif btn(4) and jumping then
+--	player.y=player.y-spd mapy-=.125*spd checkallcol(player,1)
+--	ay += alpha
+--	if ay > gravity then
+--		ay = gravity
+--		jumping = false
+--	end
+--	//button=3
+--else 
+--	ay = gravity
+--	jumping = false
+--	player.y=player.y+vel mapy+=.125*vel if checkallcol(player,1)==false then falling=true end
+--end 
+--
+--//vy += ay 
+--//y_jump += vy-- i dont think this is in use !
+--
+---- unfinished gravity code
+--//if checkallcol(player)==false then player.y=player.y+grav mapy+=.125*grav checkallcol(player) end
+--//if player.y==player.oldy then player.y=player.y-gravspd end
 
 -- moves map if player is in middle of screen
 if player.x>64 and mapx<mapwidth-8 then player.x=64 end
