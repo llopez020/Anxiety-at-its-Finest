@@ -25,14 +25,15 @@ end
 function animate(object,pos_x,pos_y,sprite_indices,sprite_width,sprite_height,frame_cycle,flipped)
     if (object==nil) then
         return
-    end
+    end    
     if (animation_data[obj_hash(object)]==nil) then
         a = animation:new(pos_x,pos_y,sprite_indices,sprite_width,sprite_height,frame_cycle)
         if (flipped!=nil) then
-            a.flipped = true
+            a.flipped = flipped
         end
         animation_data[obj_hash(object)] = a
     end
+    animation_data[obj_hash(object)].flipped = flipped
     animation_data[obj_hash(object)].pos_x = pos_x
     animation_data[obj_hash(object)].pos_y = pos_y
     play_animation(animation_data[obj_hash(object)])
@@ -43,7 +44,7 @@ function animate_once(pos_x,pos_y,sprite_indices,sprite_width,sprite_height,fram
     if (flipped!=nil) then
         a.flipped = true
     end
-    add(animation_data_once,{anim=a,num_cycles=(#a.sprite_indices*num_cycles)})
+    add(animation_data_once,{anim=a,num_cycles=(#a.sprite_indices*num_cycles)}) 
 end
 
 function handle_animations()
