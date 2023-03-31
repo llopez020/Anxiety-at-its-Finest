@@ -64,7 +64,7 @@ jump_strength = 5000.0
 mapwidth=40 -- map width
 mapheight=15 -- map height
 
-mode = "test" -- sets mode to debug menu
+mode = "initdebug" -- sets mode to debug menu
 
 player = create_object("player",0,10,50,4,7) -- creates player object with sprite 0
 loadmap() -- converts pico-8 map into objects
