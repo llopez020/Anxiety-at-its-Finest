@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 39
+version 41
 __lua__
 -- init - called on run`
 function _init()
@@ -97,6 +97,7 @@ if mode=="test" then testmode() end -- game test
 if mode=="test2" then testmode2() end -- anim test
 if mode=="test3" then testmode3() end -- Gravity with landing particles 
 if mode=="text" then textmode() end -- text box test 
+if mode == "test4" then test4() end
 
 end
 -->8
@@ -391,12 +392,13 @@ function initdebug()
 
 cls()
 
-print"press 🅾️ for mode 1,\npress ❎ for mode 2, \npress ⬇️ for mode 3,\npress ⬆️ for mode 4"
+print"press 🅾️ for mode 1,\npress ❎ for mode 2, \npress ⬇️ for mode 3,\npress ⬆️ for mode 4 \n press left arrow for mode 5"
 
 if btn(4) then mode = "test" end
 if btn(5) then mode = "test2" end
 if btn(3) then mode = "test3" end -- Mode 3 for testing 
 if btn(2) then mode = "text" end
+if btn(0) then mode = "test4" end
 
 end
 
@@ -528,6 +530,105 @@ y_jump += vy-- i dont think this is in use !
 if btn(3) then player.y=player.y+spd checkallcol(player,1) mapy+=.125*spd end
 
 end ---- END MODE 3  
+
+
+-->8
+-- Mode 4 anexity bat
+
+function test4()
+cls(12)
+
+local movement_bar = 255
+local empty_bar = 242
+local left_bar = 240
+local right_bar = 245
+local seconds = 2 -- change this to change the speed of the bar 
+
+spr(left_bar, 0 ,112) -- inital bar
+spr(empty_bar, 8 ,112) -- empty bar
+spr(empty_bar, 16 ,112) -- empty bar 
+spr(empty_bar, 24 ,112) -- empty bar
+spr(right_bar, 32 ,112) -- end bar 
+
+
+	gentime = time()
+	print(gentime)
+
+	if gentime > 1 and gentime < 2 then
+		spr(movement_bar, 8 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end 
+	if gentime > 2  and gentime < 3 then
+		spr(movement_bar, 16 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end 
+	
+	if gentime > 3 and gentime < 4 then
+		spr(movement_bar, 24 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end 
+
+	if gentime > 4 and gentime < 5 then
+		spr(movement_bar, 32 , 112)
+		if btn(5) then
+			correct_hit()
+		end
+	end
+	
+	if gentime > 5  and gentime < 6 then
+		spr(movement_bar, 24 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end
+
+	if gentime > 6  and gentime < 7 then
+		spr(movement_bar, 16 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end
+
+	if gentime > 7  and gentime < 8 then
+		spr(movement_bar, 8 , 112)
+		if btn(5) then 
+			bad_hit()
+		end
+	end
+
+	if gentime > 8  and gentime < 9 then
+		spr(movement_bar, 0 , 112)
+		if btn(5) then
+			correct_hit()
+		end
+	end
+	
+	
+
+	function correct_hit()
+
+		cls(3)
+		print("Good")
+
+	end 
+
+	function bad_hit()
+
+		cls(8)
+		print("Bad")
+
+
+	end
+
+
+end
+
 
 
 -->8
@@ -708,9 +809,9 @@ cccccccccccccccccccccccccccccccccccccccccc5500666666000066666666cccccccccccccccc
 666666666666666666666666666666666666666666666666dc6646c666666666666666666666666666666666660dd06660dddd0660dddd0660dddd0666666666
 666666666666666666666666666666666666666666666666d66646666666666666666666666666666660066660dccd060dccccd00dccccd00dccccd066666666
 555555555555555555555555555555555555555555555555d4444444666666666666666666000066660dd06660dccd060dccccd00dccccd00dccccd066666666
-588888885666666666666666888888886666666588888885d6c6466c666666666000000660dddd0660dddd06660cc06660dccd0660dddd060dccccd066666666
-588888885666666666666666888888886666666588888885dc6646c66600006600dddd000ddccdd00ddccdd060dccd06660dd0666600006660dddd0666666666
-588888885666666666666666888888886666666588888885d6664c6660dddd060ddccdd00dccccd00dccccd00dccccd060dccd06666666666600006666666666
+588888885666666666666666888888886666666588888885d6c6466c666666666000000660dddd0660dddd06660cc06660dccd0660dddd060dccccd022222222
+588888885666666666666666888888886666666588888885dc6646c66600006600dddd000ddccdd00ddccdd060dccd06660dd0666600006660dddd0622222222
+588888885666666666666666888888886666666588888885d6664c6660dddd060ddccdd00dccccd00dccccd00dccccd060dccd06666666666600006622222222
 555555555555555555555555555555555555555555555555dddddddd0dccccd00dccccd00dccccd00dccccd00dccccd00dccccd00dddddd06666666666666666
 __map__
 0000000000000000000000000000000000000000000000000000000000000000000000003e3f3e3e00000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
