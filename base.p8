@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 41
+version 39
 __lua__
 -- init - called on run`
 function _init()
@@ -84,6 +84,7 @@ jump_height = 0
 y_force = 0
 jump_allowed = true
 
+last = 0
 textindex=0
 
 
@@ -533,7 +534,7 @@ end ---- END MODE 3
 
 
 -->8
--- Mode 4 anexity bat
+-- Mode 4 anexity bar
 
 function test4()
 cls(12)
@@ -549,10 +550,12 @@ spr(empty_bar, 8 ,112) -- empty bar
 spr(empty_bar, 16 ,112) -- empty bar 
 spr(empty_bar, 24 ,112) -- empty bar
 spr(right_bar, 32 ,112) -- end bar 
+ 
 
-
-	gentime = time()
+ gentime = time()-last
 	print(gentime)
+	
+	if gentime>9 or gentime == time() then last = time() end
 
 	if gentime > 1 and gentime < 2 then
 		spr(movement_bar, 8 , 112)
@@ -609,7 +612,7 @@ spr(right_bar, 32 ,112) -- end bar
 		end
 	end
 	
-	
+
 
 	function correct_hit()
 
