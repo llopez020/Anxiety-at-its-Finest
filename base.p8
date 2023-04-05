@@ -91,6 +91,10 @@ textindex=0
 negative_counter = 0
 positive_counter = 0
 bar_flag  = false
+good_counter = 0
+bad_counter = 0 
+counting_flag = false
+
 -- end of anexity bar 
 
 
@@ -560,6 +564,8 @@ spr(right_bar, 32 ,112) -- end bar
 	--This is not relevant no more but keeping it just in case i need it 
  	gentime = time()-last
 	print(gentime)
+	print(good_counter)
+	print(bad_counter)
 	if gentime>9 or gentime == time() then last = time() end
 	--end this
 
@@ -587,21 +593,31 @@ spr(right_bar, 32 ,112) -- end bar
 
 		end
 
+	else
+	
+	counting_flag = false
+	
 	end
 
 	function correct_hit()
 
 		cls(3)
 		print("Good")
-
+		if counting_flag == false then
+		good_counter = good_counter+1
+		counting_flag = true
+		end
 	end 
 
 	function bad_hit()
 
 		cls(8)
 		print("Bad")
-
-
+		if counting_flag == false then
+		bad_counter = bad_counter + 1
+		counting_flag = true
+		end
+		
 	end
 
 end
