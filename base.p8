@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 39
+version 41
 __lua__
 -- init - called on run`
 function _init()
@@ -86,6 +86,12 @@ jump_allowed = true
 
 last = 0
 textindex=0
+
+--Anexity bar requiered
+negative_counter = 0
+positive_counter = 0
+bar_flag  = false
+-- end of anexity bar 
 
 
 end
@@ -543,7 +549,7 @@ local movement_bar = 255
 local empty_bar = 242
 local left_bar = 240
 local right_bar = 245
-local seconds = 2 -- change this to change the speed of the bar 
+local speed = 30 -- THIS IS NOT WORKING
 
 spr(left_bar, 0 ,112) -- inital bar
 spr(empty_bar, 8 ,112) -- empty bar
@@ -551,68 +557,37 @@ spr(empty_bar, 16 ,112) -- empty bar
 spr(empty_bar, 24 ,112) -- empty bar
 spr(right_bar, 32 ,112) -- end bar 
  
-
- gentime = time()-last
+	--This is not relevant no more but keeping it just in case i need it 
+ 	gentime = time()-last
 	print(gentime)
-	
 	if gentime>9 or gentime == time() then last = time() end
+	--end this
 
-	if gentime > 1 and gentime < 2 then
-		spr(movement_bar, 8 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
-	if gentime > 2  and gentime < 3 then
-		spr(movement_bar, 16 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
-	
-	if gentime > 3 and gentime < 4 then
-		spr(movement_bar, 24 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
+	if positive_counter < 32  and bar_flag == false then
+	spr(movement_bar,	positive_counter  , 112)
+	positive_counter = positive_counter + 1
+	else
+		bar_flag = true
+		print(positive_counter)
+		spr(movement_bar,  positive_counter , 112)
+		positive_counter = positive_counter - 1
 
-	if gentime > 4 and gentime < 5 then
-		spr(movement_bar, 32 , 112)
-		if btn(5) then
+		if positive_counter == 0 then
+			bar_flag = false
+		end
+
+	end
+
+	if btn(5) then
+		if (positive_counter >= 0 and positive_counter <= 8 ) or ( positive_counter >= 24 and positive_counter <=32 )then
+
 			correct_hit()
-		end
-	end
-	
-	if gentime > 5  and gentime < 6 then
-		spr(movement_bar, 24 , 112)
-		if btn(5) then 
+		else
 			bad_hit()
-		end
-	end
 
-	if gentime > 6  and gentime < 7 then
-		spr(movement_bar, 16 , 112)
-		if btn(5) then 
-			bad_hit()
 		end
-	end
 
-	if gentime > 7  and gentime < 8 then
-		spr(movement_bar, 8 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
 	end
-
-	if gentime > 8  and gentime < 9 then
-		spr(movement_bar, 0 , 112)
-		if btn(5) then
-			correct_hit()
-		end
-	end
-	
-
 
 	function correct_hit()
 
@@ -628,7 +603,6 @@ spr(right_bar, 32 ,112) -- end bar
 
 
 	end
-
 
 end
 
