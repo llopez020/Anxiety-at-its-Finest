@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 41
+version 39
 __lua__
 -- init - called on run`
 function _init()
@@ -117,6 +117,7 @@ function testmode()
 
 cls(12)
 
+renderBuildings()
 handle_animations()
 
 drawallobj() -- draws objects on to screen
@@ -227,7 +228,7 @@ if player.y<64 and mapy>=0+8 then player.y=64 end
 //if mapy<0 then mapy=0 end 
 
 -- moves all objects to correct map position
-if player.x==64 and player.x==player.oldx and player.x!=0 then moveallx() end
+if player.x==64 and player.x==player.oldx and player.x!=0 then moveallx() building_data.xoffset+=((olddmapx-mapx)*8) end
 if player.y==64 and player.y==player.oldy and player.y!=0 then moveally() end
 //if mapy<8 then mapy=8 end
 -- prints map pos
@@ -235,6 +236,7 @@ if player.y==64 and player.y==player.oldy and player.y!=0 then moveally() end
 //print(mapy.." "..ceil(player.y),40,9,7)
 if(bounce > 1) then
 	bounce = 0
+	new_building()
 else
 	bounce = bounce + 0.010
 end

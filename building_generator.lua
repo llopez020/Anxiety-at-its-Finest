@@ -1,6 +1,7 @@
 building_data = {
-    buildings_start = 0,
     buildings_end = 0,
+    xoffset = 0,
+    yoffset = 63
 }
 building_list = {}
 building = {
@@ -35,31 +36,35 @@ function new_building()
     available_brick_colors[(flr(rnd(#available_brick_colors)) + 1)], -- pick a random brick color from array
     available_roof_colors[(flr(rnd(#available_roof_colors)) + 1)]) -- pick a random roof color from array
 
-    buildingToAdd.building_x_end = building_data.buildings_start+(8*(buildingToAdd.elements_per_floor+1+buildingToAdd.elements_per_floor+2))
+    buildingToAdd.building_x_end = building_data.buildings_end+(8*(buildingToAdd.elements_per_floor+1+buildingToAdd.elements_per_floor+2))
     buildingToAdd.door_slot = (flr(rnd(buildingToAdd.elements_per_floor)) + 1)
+
+    building_data.buildings_end = buildingToAdd.building_x_end
 
     add(building_list,buildingToAdd)
 end
 
 function renderBuildings()
-    buildingToAdd = building_list[#building_list]
-    pal( 15, buildingToAdd.brick_color)
-    buildGround(buildingToAdd)
-    buildFloorOffset = 1
-    build_y_coord = 127-7-8-8
-    for i=1,buildingToAdd.number_of_floors-1,1 do
-        buildFloor(buildingToAdd,buildFloorOffset,build_y_coord)
-        buildFloorOffset = buildFloorOffset^^1
-        build_y_coord = build_y_coord-16
+    for i in all(building_list) do
+        buildingToAdd = i
+        pal( 15, buildingToAdd.brick_color)
+        buildGround(buildingToAdd)
+        buildFloorOffset = 1
+        build_y_coord = building_data.yoffset-7-8-8
+        for i=1,buildingToAdd.number_of_floors-1,1 do
+            buildFloor(buildingToAdd,buildFloorOffset,build_y_coord)
+            buildFloorOffset = buildFloorOffset^^1
+            build_y_coord = build_y_coord-16
+        end
+        build_y_coord = build_y_coord+16
+        buildRoof(buildingToAdd,build_y_coord)
+        pal( 15, 15)
     end
-    build_y_coord = build_y_coord+16
-    buildRoof(buildingToAdd,build_y_coord)
-    pal( 15, 15)
 end
 
 function buildGround(buildingToAdd)
-    build_x_coord = 8
-    build_y_coord = 127-7
+    build_x_coord = buildingToAdd.building_x_start+building_data.xoffset
+    build_y_coord = building_data.yoffset-7
     for i=1,buildingToAdd.elements_per_floor,1 do
         if (i == buildingToAdd.door_slot) then
             spr(58, build_x_coord, build_y_coord, 1, 1)
@@ -74,7 +79,7 @@ function buildGround(buildingToAdd)
         end
     end
     spr(58, build_x_coord, build_y_coord, 1, 1)
-    build_x_coord = 8
+    build_x_coord = buildingToAdd.building_x_start+building_data.xoffset
     build_y_coord = build_y_coord-8
     for i=1,buildingToAdd.elements_per_floor,1 do
         spr(58, build_x_coord, build_y_coord, 1, 1)
@@ -86,7 +91,7 @@ function buildGround(buildingToAdd)
 end
 
 function buildFloor(buildingToAdd,buildFloorOffset,build_y_coord)
-    build_x_coord = 8
+    build_x_coord = buildingToAdd.building_x_start+building_data.xoffset
     if(buildFloorOffset == 1) then
         spr(58, build_x_coord, build_y_coord, 1, 1)
         build_x_coord = build_x_coord + 8
@@ -108,7 +113,7 @@ function buildFloor(buildingToAdd,buildFloorOffset,build_y_coord)
         end
         spr(58, build_x_coord, build_y_coord, 1, 1)
     end
-    build_x_coord = 8
+    build_x_coord = buildingToAdd.building_x_start+building_data.xoffset
     build_y_coord = build_y_coord-8
     for i=1,buildingToAdd.elements_per_floor,1 do
         spr(58, build_x_coord, build_y_coord, 1, 1)
@@ -120,11 +125,11 @@ function buildFloor(buildingToAdd,buildFloorOffset,build_y_coord)
 end
 
 function buildRoof(buildingToAdd,build_y_coord)
-    build_x_coord = 0
+    build_x_coord = buildingToAdd.building_x_start-8+building_data.xoffset
     rectfill( build_x_coord, build_y_coord, build_x_coord+7, build_y_coord-7, buildingToAdd.roof_color)
     build_x_coord = build_x_coord + 8*(buildingToAdd.elements_per_floor+buildingToAdd.elements_per_floor+2)
     rectfill( build_x_coord, build_y_coord, build_x_coord+7, build_y_coord-7, buildingToAdd.roof_color)
-    build_x_coord = 8
+    build_x_coord = buildingToAdd.building_x_start+building_data.xoffset
     build_y_coord = build_y_coord - 8
     for i=1,buildingToAdd.elements_per_floor,1 do
         rectfill( build_x_coord, build_y_coord, build_x_coord+7, build_y_coord-7, buildingToAdd.roof_color)
