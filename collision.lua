@@ -16,12 +16,12 @@ end
 function tilecoll(x,y,w,h)
    
     col=false
-   
     -- debug show hitboxes
     //if (debugint==1) then rect(x,y,x+w,y+h,8) end
- 
-    rx=(realmapx)/8
-    ry=(realmapy)/8
+    
+    rx=-(realmapx)/8
+    ry=-(realmapy)/8
+    ry=ry+0.125
     for i=x,x+w,w do
         if (fget(mget((i/8)+rx,(y/8)+ry),0)==true) or (fget(mget((i/8)+rx,((y+h)/8)+ry),0)==true) then
             col=true
