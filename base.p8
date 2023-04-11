@@ -94,6 +94,8 @@ bar_flag  = false
 good_counter = 0
 bad_counter = 0 
 counting_flag = false
+anexity_level = 0 
+
 
 -- end of anexity bar 
 
@@ -551,25 +553,43 @@ end ---- END MODE 3
 function test4()
 cls(12)
 
-local movement_bar = 255
+local movement_bar = 243
 local empty_bar = 242
 local left_bar = 240
 local right_bar = 245
 local speed = 30 -- THIS IS NOT WORKING
+local passive_time_anexity_increse = 2
+local passive_increase_level = 5
 
 spr(left_bar, 0 ,112) -- inital bar
 spr(empty_bar, 8 ,112) -- empty bar
 spr(empty_bar, 16 ,112) -- empty bar 
 spr(empty_bar, 24 ,112) -- empty bar
 spr(right_bar, 32 ,112) -- end bar 
- 
+
+--anexity level bar
+
+level_draw = 36 * anexity_level / 100
+
+rect(0, 122 , 39 , 126 , 5)
+rectfill(1,123,2 + level_draw,125,8)
+
+
 	--This is not relevant no more but keeping it just in case i need it 
  	gentime = time()-last
 	print(gentime)
 	print(good_counter)
 	print(bad_counter)
-	if gentime>9 or gentime == time() then last = time() end
+	print(anexity_level)
+	if gentime> passive_time_anexity_increse or gentime == time() then last = time() end
 	--end this
+
+	if gentime == passive_time_anexity_increse and anexity_level < 100 then 
+
+		anexity_level = anexity_level + passive_increase_level
+
+	end
+
 
 	if positive_counter < 32  and bar_flag == false then
 	spr(movement_bar,	positive_counter  , 112)
@@ -607,6 +627,12 @@ spr(right_bar, 32 ,112) -- end bar
 		print("Good")
 		if counting_flag == false then
 		good_counter = good_counter+1
+		
+		if anexity_level > 0 then
+
+			anexity_level = anexity_level - 1
+		end
+
 		counting_flag = true
 		end
 	end 
@@ -615,12 +641,36 @@ spr(right_bar, 32 ,112) -- end bar
 
 		cls(8)
 		print("Bad")
+
+		
+
 		if counting_flag == false then
 		bad_counter = bad_counter + 1
+
+		if anexity_level < 100 then
+
+			anexity_level = anexity_level + 1
+
+		end
+
+
 		counting_flag = true
 		end
+
+
+
+
 		
 	end
+
+
+	if anexity_level == 100 then
+
+		-- Here goes Code for death 
+
+	
+	end
+
 
 end
 
