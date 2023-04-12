@@ -59,8 +59,8 @@ function create_buildings()
                     spawn = available_spawners[(flr(rnd(#available_spawners)) + 1)]
                     mset( floor_x_start, map_y_start-1, spawn)
                     if(spawn == 247) then
-                        --create_object("blob",247,floor_x_start*8,(map_y_start-1)*8,8,7) 
-                        --mset(floor_x_start,map_y_start-1,0)
+                        create_object("blob",247,floor_x_start*8+building_data.xoffset_camera,(map_y_start-1)*8,8,7) 
+                        mset(floor_x_start,map_y_start-1,0)
                     end
                     current_spawners += 1
                 end
