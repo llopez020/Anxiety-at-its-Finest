@@ -54,6 +54,19 @@ gravity = 0.15              -- grav
 initial_acceleration = -0.5*4 -- acc
 alpha = 0.06				-- alpha     
 
+---Anexity bar init
+negative_counter = 0
+positive_counter = 0
+bar_flag  = false
+good_counter = 0
+bad_counter = 0 
+counting_flag = false
+anexity_level = 0 
+anex_bar_color = 11
+level_anex_bar_color = 11
+
+
+--- Anexity
 
 --begin tinker
 delta_t = 1.0/60.0
@@ -141,6 +154,179 @@ animate(anxiety_animation9,sin(bounce)*4-40,115-8-63,anxiety_animation9,8,4,17)
 animate(anxiety_animation10,sin(bounce)*4-40,96-35-63,anxiety_animation10,8,4,5)
 animate(anxiety_animation11,sin(bounce)*4-40,105-35-63,anxiety_animation11,8,4,11)
 animate(anxiety_animation12,sin(bounce)*4-40,17-35-63,anxiety_animation12,8,4,17)
+
+----- Anexity bar Code
+
+
+local movement_bar = 243
+local empty_bar = 242
+local left_bar = 240
+local right_bar = 245
+--This will change how much time will take to the anex to pasive increase
+local passive_time_anexity_increse = 2
+-- How much anex will increase pasive
+local passive_increase_level = 5
+-- Bar Speed multiplier -NOTE 2 is crazy fast
+local bar_spd = .7 
+-- How much points will increase your anex with a bad hit 
+local bad_hit_amount = 1 
+--How much points will decrease your anex with a good hit
+local good_hit_amount = 1
+
+spr(left_bar, 0 ,112) -- inital bar
+spr(empty_bar, 8 ,112) -- empty bar
+spr(empty_bar, 16 ,112) -- empty bar 
+spr(empty_bar, 24 ,112) -- empty bar
+spr(right_bar, 32 ,112) -- end bar 
+
+--anexity level bar
+
+level_draw = 36 * anexity_level / 100
+
+rect(0, 122 , 39 , 126 , 5)
+rectfill(1,123,2 + level_draw,125,level_anex_bar_color)
+
+	--Filling reclangle color change 
+
+	if anexity_level < 25 then
+		level_anex_bar_color = 11
+	elseif anexity_level < 50 then
+		level_anex_bar_color = 10
+	elseif anexity_level < 75 then
+		level_anex_bar_color = 9
+	else 
+		level_anex_bar_color = 8
+	end 
+
+
+	---end rectangle color change 
+
+	--Important for time increase
+ 	gentime = time()-last
+	--debbuging pritning
+	print(gentime)
+	print(good_counter)
+	print(bad_counter)
+	print(anexity_level)
+	--end debugging 
+
+	--passive increase code
+	if gentime> passive_time_anexity_increse or gentime == time() then last = time() end
+	--end this
+
+
+	if gentime == passive_time_anexity_increse and anexity_level < 100 then 
+
+		anexity_level = anexity_level + passive_increase_level
+
+	end
+	-- end passive increase code 
+	
+	--Bar movement Code 
+	if positive_counter < 32  and bar_flag == false then
+	positive_counter = positive_counter + 1 * bar_spd
+	else
+		bar_flag = true
+		print(positive_counter)
+		positive_counter = positive_counter - 1 * bar_spd
+
+		if positive_counter == 0 then
+			bar_flag = false
+		end
+
+	end
+	--end bar movement code 
+
+	--code change the color of the bar when correct area
+	if (positive_counter >= 0 and positive_counter <= 8 ) or ( positive_counter >= 24 and positive_counter <=32 )then
+		anex_bar_color = 11
+	else
+		anex_bar_color = 8
+	end
+	-- end code change the color of the bar in the correct area
+
+	--Button press Handeler
+	if btn(5) then
+		if (positive_counter >= 0 and positive_counter <= 8 ) or ( positive_counter >= 24 and positive_counter <=32 )then
+			correct_hit()
+		else
+			bad_hit()
+
+		end
+
+	else
+	
+	counting_flag = false
+	
+	end
+	-- End button press Handeler
+
+	--Functions for correct and bad hit 
+	function correct_hit()
+
+		--print("Good") --Debug Code
+		--decrease level anexity  code 
+		if counting_flag == false then
+		good_counter = good_counter+1
+		
+		if anexity_level > 0 then
+
+			anexity_level = anexity_level - good_hit_amount
+		end
+		counting_flag = true
+		end
+
+		--end funcionality for decrease level
+
+		--Put here your code for any other reacitons when correct hit 
+
+		-- end put here code 
+
+	end 
+
+	function bad_hit()
+
+	
+		--print("Bad") -- debug 
+
+		--Increase level of anexity code 
+		if counting_flag == false then
+		bad_counter = bad_counter + 1
+
+		if anexity_level < 100 then
+
+			anexity_level = anexity_level + bad_hit_amount
+
+		end
+		counting_flag = true
+		end
+		-- End increase level of anexity code 
+
+		--Put here your code for any other reactions when correct hit 
+
+
+		-- end put here code 
+		
+	end
+
+	--If anexity gets into 100 code
+	if anexity_level >= 100 then
+
+		-- Here goes Code for death or any other consequences  
+
+	
+	end
+	-- end anexity level code 
+
+	--Anexity bar moving arround code 
+	rectfill(1+positive_counter,116,6+positive_counter,118,anex_bar_color) -- Anexity bar moving 
+	--end anexity bar moving arround code 
+
+--- End Anexityy bar code 
+
+
+
+
 
 button=-1
 -- fps debug
