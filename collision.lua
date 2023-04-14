@@ -18,7 +18,8 @@ function tilecoll(x,y,w,h)
     col=false
     -- debug show hitboxes
     //if (debugint==1) then rect(x,y,x+w,y+h,8) end
-    
+    h=h-1
+
     rx=-(realmapx)/8
     ry=-(realmapy)/8
     ry=ry+0.125
