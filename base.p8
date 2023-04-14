@@ -188,17 +188,15 @@ animate(anxiety_animation12,sin(bounce)*4-40,17-35-63,anxiety_animation12,8,4,17
 ----- anexity bar code
 
  local anxmax = 150
- //rectfill(player.x-(anxmax-anexity_level),0 , player.x-(anxmax-anexity_level)-128,128,0)
-// rectfill(0,player.y-(anxmax-anexity_level),128 ,player.x-(anxmax-anexity_level)-128,0)
-// rectfill(player.x+(anxmax-anexity_level),0 , player.x+(anxmax-anexity_level)+128,128,0)
-// rectfill(0,player.y+(anxmax-anexity_level),128 ,player.x+(anxmax-anexity_level)+128,0)
+ rectfill(player.x-(anxmax-anexity_level),0 , player.x-(anxmax-anexity_level)-128,128,0)
+ rectfill(0,player.y-(anxmax-anexity_level),128 ,player.x-(anxmax-anexity_level)-128,0)
+ rectfill(player.x+(anxmax-anexity_level),0 , player.x+(anxmax-anexity_level)+128,128,0)
+ rectfill(0,player.y+(anxmax-anexity_level),128 ,player.x+(anxmax-anexity_level)+128,0)
 
-// for i=0,flr((anxmax-anexity_level/2))+10 do
- // if rnd(1)==0 then 
- // circ(player.x,player.y,(anxmax-anexity_level)+i,0)
- // circ(player.x-1,player.y,(anxmax-anexity_level)+i,0)
- // end
-// end
+ for i=0,flr((anxmax-anexity_level)/5)+15 do 
+  circ(player.x,player.y,(anxmax-anexity_level)+i,0)
+//  circ(player.x-1,player.y,(anxmax-anexity_level)+i,0)
+ end
  
 local movement_bar = 243
 local empty_bar = 242
