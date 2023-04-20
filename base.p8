@@ -401,6 +401,10 @@ if(checkallcol(player,0)) then
 	velocity_x = 0
 end
 
+if(player.x > 123) then
+	velocity_x = 0
+end
+
 //print(onground)
 //print(velocity_x)
 //print(velocity_y)
