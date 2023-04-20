@@ -14,7 +14,8 @@ building = {
     door_slot = 0,
     brick_color = 0,
     roof_color = 0,
-    max_spawners = 0
+    max_spawners = 0,
+    item_list = {}
 }
 available_brick_colors = {15,8,13,5}
 available_roof_colors = {13,4,0,1,5}
@@ -31,8 +32,25 @@ function building:new(building_x_start_,number_of_floors_,elements_per_floor_,br
     self)
 end
 
+function cull_buildings()
+    if((mapx+1)*8>building_list[1].building_x_end) then 
+        for a in all(building_list[1].item_list) do -- remove items
+            deleteobj(a)
+        end
+        del(building_list, building_list[1]) --remove building
+    end
+end
+
+function translate_buildings(translationAmount)
+    for a in all(building_list) do
+        a.building_x_start -= translationAmount
+        a.building_x_end -= translationAmount
+    end
+    building_data.buildings_end = building_list[#building_list].building_x_end
+end
+
 function create_buildings()
-    while(building_data.buildings_end<128*8) do
+    while(building_data.buildings_end<(mapx+17)*8) do
         buildingToAdd = 
         building:new
         (building_data.buildings_end, -- new building starts at buildings end coordinate
@@ -44,6 +62,7 @@ function create_buildings()
         buildingToAdd.building_x_end = building_data.buildings_end+(8*(buildingToAdd.elements_per_floor+1+buildingToAdd.elements_per_floor+2))
         buildingToAdd.door_slot = (flr(rnd(buildingToAdd.elements_per_floor)) + 1)
         buildingToAdd.max_spawners = (flr(buildingToAdd.elements_per_floor/2)*buildingToAdd.number_of_floors)/3
+        buildingToAdd.item_list = {}
 
         building_data.buildings_end = buildingToAdd.building_x_end
 
@@ -54,24 +73,24 @@ function create_buildings()
         buildFloorOffset = 0
         for i=1,buildingToAdd.number_of_floors,1 do
             for j=1,buildingToAdd.elements_per_floor-buildFloorOffset,1 do
-                if i>1 then create_object("plat",52,floor_x_start*8+building_data.xoffset_camera,map_y_start*8,8,2) end
+                if i>1 then add(buildingToAdd.item_list,create_object("plat",52,floor_x_start*8+building_data.xoffset_camera,map_y_start*8,8,2)) end
                 if((flr(rnd(6)))==1 and current_spawners<buildingToAdd.max_spawners) then
                     spawn = available_spawners[(flr(rnd(#available_spawners)) + 1)]
                     mset( floor_x_start, map_y_start-1, spawn)
                     if(spawn == 247) then
-                        create_object("blob",247,floor_x_start*8+building_data.xoffset_camera,(map_y_start-1)*8,8,7) 
+                        add(buildingToAdd.item_list,create_object("blob",247,floor_x_start*8+building_data.xoffset_camera,(map_y_start-1)*8,8,7) )
                         mset(floor_x_start,map_y_start-1,0)
                     end
                     if(spawn == 14) then
-                        create_object("item",14,floor_x_start*8+building_data.xoffset_camera,(map_y_start-1)*8,8,8) 
+                        add(buildingToAdd.item_list,create_object("item",14,floor_x_start*8+building_data.xoffset_camera,(map_y_start-1)*8,8,8) )
                         mset(floor_x_start,map_y_start-1,0)
                     end
                     if(spawn == 15) then
-                        create_object("item",15,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) 
+                        add(buildingToAdd.item_list,create_object("item",15,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) )
                         mset(floor_x_start,map_y_start-1,0)
                     end
                     if(spawn == 16) then
-                        create_object("item",16,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) 
+                        add(buildingToAdd.item_list,create_object("item",16,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) )
                         mset(floor_x_start,map_y_start-1,0)
                     end
                     current_spawners += 1
