@@ -21,7 +21,7 @@ building = {
 }
 available_brick_colors = {15,8,13,5}
 available_roof_colors = {13,4,0,1,5}
-available_spawners = {247,14,15,16}
+available_spawners = {247,247,247,247,247,247,14,15,16,44,40}
 
 function building:new(building_x_start_,number_of_floors_,elements_per_floor_,brick_color_,roof_color_)
     self.__index = self
@@ -78,7 +78,7 @@ function create_buildings()
         for i=1,buildingToAdd.number_of_floors,1 do
             for j=1,buildingToAdd.elements_per_floor-buildFloorOffset,1 do
                 if i>1 then add(buildingToAdd.item_list,create_object("plat",52,floor_x_start*8+building_data.xoffset_camera,map_y_start*8,8,2)) end
-                if((flr(rnd(8)))==1 and current_spawners<buildingToAdd.max_spawners) then
+                if((flr(rnd(4)))==1 and current_spawners<buildingToAdd.max_spawners) then
                     spawn = available_spawners[(flr(rnd(#available_spawners)) + 1)]
                     mset( floor_x_start, map_y_start-1, spawn)
                     if(spawn == 247) then
@@ -95,6 +95,14 @@ function create_buildings()
                     end
                     if(spawn == 16) then
                         add(buildingToAdd.item_list,create_object("item",16,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) )
+                        mset(floor_x_start,map_y_start-1,0)
+                    end
+                    if(spawn == 44) then
+                        add(buildingToAdd.item_list,create_object("item",44,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) )
+                        mset(floor_x_start,map_y_start-1,0)
+                    end
+                    if(spawn == 40) then
+                        add(buildingToAdd.item_list,create_object("item",40,(floor_x_start*8+building_data.xoffset_camera),(map_y_start-1)*8,8,8) )
                         mset(floor_x_start,map_y_start-1,0)
                     end
                     current_spawners += 1
@@ -123,6 +131,8 @@ function buildStructure(buildingToAdd,buildFloorOffset,build_y_coord)
         if i=='n' then build_y_coord=build_y_coord-8 build_x_coord=tempbuild_x else
          if i==247 then add(buildingToAdd.item_list,create_object("blob",i,build_x_coord,build_y_coord,8,8) ) 
          elseif i==16 then add(buildingToAdd.item_list,create_object("item",i,build_x_coord,build_y_coord,8,8) ) 
+         elseif i==14 then add(buildingToAdd.item_list,create_object("item",i,build_x_coord,build_y_coord,8,8) ) 
+         elseif i==40 then add(buildingToAdd.item_list,create_object("item",i,build_x_coord,build_y_coord,8,8) ) 
          elseif i==52 then add(buildingToAdd.item_list,create_object("plat",i,build_x_coord,build_y_coord,8,8) ) 
 
         elseif i!=0 then add(buildingToAdd.item_list,create_object("wall",i,build_x_coord,build_y_coord,8,8) ) end build_x_coord=build_x_coord+8 end
@@ -258,29 +268,32 @@ end
 function structure_list(id)
    if id==0 then return {47,13,13,47,13,13,47,'n',
                          0,47,13,247,13,47,'n',
-                         0,0,47,0,47 } end
+                         0,0,47,0,47,40,'n',
+                        'n',
+                    0,0,0,0,0 } end
     if id==1 then return {47,13,13,47,13,13,47,'n',
                          0,47,13,16,13,47,'n',
-                         0,0,47,0,47 } end  
+                         0,0,47,0,47,'n' } end  
     if id==2 then return {47,13,13,13,13,47,'n',
                             0,47,47,13,47,'n',
                             0,0,0,13,0,'n',
-                            0,52,52,13,'n',
-                            0,247,0,63} end  
+                            0,52,0,13,'n',
+                            0,0,0,63} end  
     if id==3 then return {0,225,'n',
                                 224,227,224,'n',
-                                0,224,0} end  
+                                0,224,247} end  
 
     if id==4 then return {0,226,0,226,'n',
                             224,227,227,226,'n',
                             0,224,227,227,224,'n',
-                            0,0,224,224} end  
-    if id==5 then return {0,0,225,0,0,'n',
-                                224,224,227,227,227,'n',
-                                0,0,224,227,227,'n',
-                                0,0,0,224,224,'n',
-                                227,227,'n',
-                                227,227,227,227,227,'n',
-                                224,227,227,224,224,'n',
-                                0,224,224} end 
+                            0,0,224,224,'n',
+                            0,0,0,247} end  
+    if id==5 then return {0,0,0,0,225,0,0,0,247,'n',
+                                52,0,224,224,227,227,227,'n',
+                                14,0,0,247,224,227,227,'n',
+                                0,0,0,0,247,224,224,'n',
+                                0,0,227,227,'n',
+                                0,0,227,227,227,227,227,'n',
+                                0,0,224,227,227,224,224,'n',
+                                0,0,0,224,224} end 
 end 
