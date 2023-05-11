@@ -5,7 +5,7 @@ __lua__
 function _init()
 cls()
 
-mode = "start" -- sets mode to debug menu
+mode = "menu" -- sets mode to debug menu
 
 #include collision.lua
 #include animation.lua
@@ -94,6 +94,24 @@ deathtext=0
 -- end
 
 
+-- Menu selection 
+
+menu_seleciton = "start"
+ball_y = 92
+
+-- end
+--Setting selection
+
+sound_selection = "on"
+difficulty_selection = "easy"
+s_bally = 52
+setting_selection = "sound"
+stepbystepflag = false
+-- end 
+
+
+
+
 mapwidth=128 -- map width
 mapheight=30 -- map height
 
@@ -143,8 +161,212 @@ if mode == "test4" then test4() end
 if mode == "gameover" then gameover() end
 if mode== "win" then win() end
 if mode== "start" then start() end
+if mode == "menu" then menu() end
+if mode == "settings" then settings() end 
 
 end
+
+
+function p2(s,x,y,c) -- 26 tokens, 6.2667 seconds
+for i in all(split'\f0\-f,\-h,\|f,\|h') do
+	?i..s,x,y
+end
+	?s,x,y,c
+end
+--Menu method 
+--needs background and color 
+function menu()
+	cls(12) -- blue background
+	
+	-- NEEDS A BACKGROUND DESSIGN 
+	map(0,16)
+	spr(199,8,80) -- remove the small cloud
+	-- END 
+	
+	
+	p2("start", 50 , 90 , 14)
+	--print ("start" , 50 , 90,0)
+	p2("settings", 50 , 100 , 14)
+	--print ("settings" , 50 , 100,0)
+	--print(stepbystepflag) -- Debug 
+	
+	circfill (45 , ball_y , 2 , 8)
+	
+	if btn(3) and stepbystepflag == false then 
+	
+		if menu_seleciton == "start" then
+	
+			menu_seleciton = "settings"
+	
+			ball_y = ball_y + 10
+	
+			stepbystepflag = true
+	
+	
+		end
+	end 
+	
+	if btn(2) and stepbystepflag == false then
+	
+		if menu_seleciton == "settings" then
+			menu_seleciton = "start"
+			ball_y = ball_y - 10
+	
+			stepbystepflag = true
+		end
+	
+	end 
+	
+	if btn(5) and stepbystepflag == false then 
+	
+	if menu_seleciton == "start" then  
+		mode = "start"
+		stepbystepflag = true
+	end
+	
+	if menu_seleciton == "settings" then
+		mode ="settings"
+		stepbystepflag = true
+	end 
+	
+	end -- end button x
+	
+	if not btn(2)  and  not btn(3) and not btn(5) then
+	
+		stepbystepflag = false
+		
+	end 
+	
+	end -- end menu
+	
+	function settings ()
+	
+	
+	cls(12) -- blue background
+	map(0,16)	
+	spr(199,8,80) -- remove the small cloud
+	p2("sound", 30 , 50 , 14)
+	--print ("sound" , 30 , 50 , 0)
+	p2(sound_selection, 70 , 50 , soundcolor(sound_selection))
+	--print (sound_selection , 80 , 50,0)
+	p2("dificulty", 30 , 60 , 14)
+	--print("dificulty" , 30 ,60,0)
+	p2(difficulty_selection, 70 , 60 , dangercolor(difficulty_selection))
+	--print(difficulty_selection , 70 , 60,0 )
+	p2("back", 30 , 80 , 14)
+	--print("back", 30 , 80,0)
+	
+	circfill(25 , s_bally , 2, 8 )
+	
+	if btn(3) then
+	
+		if setting_selection == "sound" and stepbystepflag == false then 
+	
+		s_bally = s_bally + 10 
+		setting_selection = "difficulty"
+		stepbystepflag = true
+		end
+	
+		if setting_selection == "difficulty" and stepbystepflag == false then
+		s_bally = s_bally + 20
+		setting_selection = "back"
+		stepbystepflag = true
+		end
+	
+	end
+	
+	if btn (2) then 
+	
+		if setting_selection == "back" and stepbystepflag == false then
+	
+			s_bally = s_bally - 20 
+			setting_selection = "difficulty"
+			stepbystepflag = true
+		end
+		if setting_selection == "difficulty" and stepbystepflag == false then
+			s_bally = s_bally - 10 
+			setting_selection = "sound"
+			stepbystepflag = true
+		end
+	
+	end 
+	
+	if btn(5) then 
+	
+		if setting_selection == "sound" and stepbystepflag== false then
+	
+			if sound_selection == "on" then 
+				sound_selection = "off"
+				stepbystepflag = true
+			else
+				sound_selection = "on"
+				stepbystepflag = true
+			end
+		end
+	
+	
+		if setting_selection == "difficulty" and stepbystepflag == false then
+	
+			if difficulty_selection == "easy" then
+				difficulty_selection = "medium"
+				stepbystepflag = true
+			elseif difficulty_selection =="medium" then
+				difficulty_selection = "hard"
+				stepbystepflag = true 
+			else 
+				difficulty_selection = "easy"
+				stepbystepflag = true
+			end
+	
+		end 
+	
+		if setting_selection == "back" and stepbystepflag == false then
+			mode = "menu"
+			stepbystepflag = true 
+		end
+	
+	end
+	
+	--ensures that one movement at one time 
+	if not btn(2) and not btn(3) and not btn(5) then
+	
+	stepbystepflag = false
+	
+	end 
+	
+	end 
+	-- end settings 
+
+function dangercolor(diflev)
+
+if diflev == "easy" then
+
+return 11
+end
+
+if diflev == "medium"then 
+return 9
+end 
+
+if diflev =="hard" then
+return 8
+end
+end
+
+function soundcolor(soundval)
+
+if soundval == "on" then 
+
+	return 11
+end
+
+if soundval == "off" then
+
+	return 8
+end
+
+end
+
 
 function start()
  cls(12)
@@ -233,7 +455,7 @@ elseif anexitytimer>0 then
  for i=0,flr((anxmax-anexity_levelg)/5)+15 do 
   circ(player.x,player.y,(anxmax-anexity_levelg)+i,0)
  end 
-elseif antianexitytimer>0 then
+elseif antianexitytimer>0 then	
 
 end
  
@@ -1226,8 +1448,9 @@ d0d2c8dbd9d9d9d9d9d9dac8d0d3d2c800000000000000002f2f0000000000000000000000000000
 c7cdc7c7c7c7c7c7c7c7c7c7c7c7c7c700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000233737373737373737373737373737
 c7d5d8c7d5e5c7d5e5c7c7d4c7c7d4c7000000000000002f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003838383838383838383838383838
 c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c700000000002f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003333333333333333333333333333
-d5d7d6c7d5d7d6c7d5e5c7c7c7c7c7c7000000002f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000000000000000000000000000000002f2f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d5d7d6c7d5d7d6c7d5e5c7d5d7d6c7c7000000002f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c700002f2f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+c7c7d4c7d5d8c7c7d4c7c7d5e5c7d4c700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 3e2800102065420754202542075420254207542075420254201542075420254207542025420754206542075418604300042320430004300043000430004300043000430004300040000400004000040000400004
 33040005096240c624136241c62424624274042c6042a20427204242041f2041e2041d2041e20420204252042b2042a204222041a204182041b20423204252041f2041c2041c2041f20422204000040000400004
