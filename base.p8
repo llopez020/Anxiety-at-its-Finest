@@ -5,15 +5,26 @@ __lua__
 function _init()
 cls()
 
-mode = "menu" -- sets mode to main menu
+cartdata("anx_data")
+
+mode = "start" -- sets mode to main menu
 
 #include collision.lua
 #include animation.lua
 
-sound_selection = "on"
-difficulty_selection = "medium"
+difficulty_selection=dget(51)
+sound_selection=dget(50) 
 
-sound_enabled = true
+if sound_selection==0 then sound_selection = "on" dset(50, 1) end
+if difficulty_selection==0 then difficulty_selection = "easy" dset(51, 1) end 
+
+if dget(50)==1 then sound_selection="on" end
+if dget(50)==2 then sound_selection="off" end
+if dget(51)==1 then difficulty_selection="easy" end
+if dget(51)==2 then difficulty_selection="medium" end
+if dget(51)==3 then difficulty_selection="hard" end
+
+if sound_selection=="on" then sound_enabled = true else sound_enabled = false end
 
 function resetmode() -- restart variables
 #include delete.lua
