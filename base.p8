@@ -1,17 +1,21 @@
 pico-8 cartridge // http://www.pico-8.com
 version 39
 __lua__
--- init - called on run`
+-- init - called on run
 function _init()
 cls()
 
-mode = "menu" -- sets mode to debug menu
-sound_enabled = true
+mode = "menu" -- sets mode to main menu
 
 #include collision.lua
 #include animation.lua
 
-function resetmode()
+sound_selection = "on"
+difficulty_selection = "medium"
+
+sound_enabled = true
+
+function resetmode() -- restart variables
 #include delete.lua
 #include building_generator.lua
 
@@ -55,6 +59,8 @@ spd=0.5 -- movement speed
 vel = spd*2 -- Edit this for natural falling speed 
 button=-1
 
+blob_dam=10
+
 max_height = -20            -- height
 gravity = 0.15              -- grav
 initial_acceleration = -0.5*4 -- acc
@@ -75,10 +81,11 @@ level_anex_bar_color = 11
 anexitytimer=0
 antianexitytimer=0
 anexityshield=false
-icontimer=0
-icon=0
+icontimer=0 -- amount of time icon is displayed
+icon=0 -- icon
 --- anexity
 scrollspd=.02
+
 --begin tinker
 delta_t = 1.0/60.0
 delta_x = 0
@@ -103,8 +110,6 @@ ball_y = 92
 -- end
 --Setting selection
 
-sound_selection = "on"
-difficulty_selection = "easy"
 s_bally = 52
 setting_selection = "sound"
 stepbystepflag = false
@@ -156,17 +161,12 @@ end
 -- update - called on every frame
 function _update60()
 
-if mode=="initdebug" then initdebug() end -- debug menu
-if mode=="test" then testmode() end -- game test
-if mode=="test2" then testmode2() end -- anim test
-if mode=="test3" then testmode3() end -- Gravity with landing particles 
-if mode=="text" then textmode() end -- text box test 
-if mode == "test4" then test4() end
-if mode == "gameover" then gameover() end
-if mode== "win" then win() end
-if mode== "start" then start() end
-if mode == "menu" then menu() end
-if mode == "settings" then settings() end 
+if mode == "game" then gamemode() end -- game test
+if mode == "gameover" then gameover() end -- death screen
+if mode == "win" then win() end -- win screen
+if mode == "start" then start() end -- starting cutscene
+if mode == "menu" then menu() end -- main menu
+if mode == "settings" then settings() end --settings
 
 end
 
@@ -373,9 +373,10 @@ end
 
 end
 
-
+-- starting cutscene
 function start()
  	cls(12)
+	-- plays cutscene
  	if cutscene_timer==0 then animate_once(7,62,{17,18,19,20},1,1,26,2) end
  	if cutscene_timer==100 then animate_once(7,62+5,{21,22},1,1,5,2) end
 
@@ -384,11 +385,12 @@ function start()
 	if cutscene_timer>=105 then animate(cutscene_run,cutscene_player_x,75,cutscene_run,1,1,15) cutscene_player_x += 1 else spr(8,10,73) end
 
 	textbox(0,90,127,127,"the anxiety is building up...\nget ready!")
- 	cutscene_timer += 1
+ cutscene_timer += 1
 	handle_animations()
- 	if textindex>100 then mode="test" textindex=0 resetmode() end
+ 	if textindex>100 then mode="game" textindex=0 resetmode() end
 end
 
+-- game over screen
 function gameover()
  
  if(game_over_flag == false) then if(sound_enabled) then sfx(18) music(5) end game_over_flag = true end
@@ -403,19 +405,21 @@ function gameover()
  if gmt==5 then textbox(0,90,127,127,"game over!\npress ❎ to play again!\nsometimes, it can be helpful\nto take a step back and gain \nsome clarity on the situation!") end
 
  if gmt>5 then textbox(0,90,127,127,"game over!\npress ❎ to play again!") end
- if btn(❎) and textindex>30 then mode="test" resetmode() end
+ if btn(❎) and textindex>30 then mode="game" resetmode() end
  
 end
 
+-- winning screen
 function win()
  
  textbox(0,90,127,127,"you win!\npress ❎ to restart")
- if btn(❎) and textindex>30 then mode="test" resetmode() end
+ if btn(❎) and textindex>30 then mode="game" resetmode() end
  
 end
+
 -->8
--- test - test mode
-function testmode()
+-- game - main game mode
+function gamemode()
 
 cls(12)
 handle_music()
@@ -446,7 +450,9 @@ animate(anxiety_animation11,sin(bounce)*4-40,105-35-63,anxiety_animation11,8,4,1
 animate(anxiety_animation12,sin(bounce)*4-40,17-35-63,anxiety_animation12,8,4,17)
 
 ----- anexity bar code
-if anexitytimer<=0 and antianexitytimer<=0 then 
+
+-- draws anxiety circles
+if anexitytimer<=0 and antianexitytimer<=0 then -- if not true sight
  local anxmax = 150
  rectfill(player.x-(anxmax-anexity_level),0 , player.x-(anxmax-anexity_level)-128,128,0)
  rectfill(0,player.y-(anxmax-anexity_level),128 ,player.x-(anxmax-anexity_level)-128,0)
@@ -455,9 +461,8 @@ if anexitytimer<=0 and antianexitytimer<=0 then
 
  for i=0,flr((anxmax-anexity_level)/5)+15 do 
   circ(player.x,player.y,(anxmax-anexity_level)+i,0)
-//  circ(player.x-1,player.y,(anxmax-anexity_level)+i,0)
  end
-elseif anexitytimer>0 then
+elseif anexitytimer>0 then -- if blinded
  local anxmax = 150
  local anexity_levelg= 130
  rectfill(player.x-(anxmax-anexity_levelg),0 , player.x-(anxmax-anexity_levelg)-128,128,0)
@@ -468,13 +473,11 @@ elseif anexitytimer>0 then
  for i=0,flr((anxmax-anexity_levelg)/5)+15 do 
   circ(player.x,player.y,(anxmax-anexity_levelg)+i,0)
  end 
-elseif antianexitytimer>0 then	
-
 end
  
-if anexitytimer>0 then anexitytimer=anexitytimer-1 icontimer=1 icon=43 end
-if antianexitytimer>0 then antianexitytimer=antianexitytimer-1 icontimer=1 icon=38 end
-if anexityshield==true then spr(228,52,120) end
+if anexitytimer>0 then anexitytimer=anexitytimer-1 icontimer=1 icon=43 end -- blinded icon
+if antianexitytimer>0 then antianexitytimer=antianexitytimer-1 icontimer=1 icon=38 end -- true sight icon
+if anexityshield==true then spr(228,52,120) end -- shielded icon
  
 local movement_bar = 243
 local empty_bar = 242
@@ -483,11 +486,21 @@ local right_bar = 245
 --this will change how much time will take to the anex to pasive increase
 local passive_time_anexity_increse = 0.5
 -- how much anex will increase pasive
-local passive_increase_level = 2
+local passive_increase_level = 1
+if difficulty_selection=="medium" then passive_increase_level=2 end
+if difficulty_selection=="hard" then passive_increase_level=3 end
+
+if difficulty_selection=="easy" then blob_dam=10 end
+if difficulty_selection=="medium" then blob_dam=20 end
+if difficulty_selection=="hard" then blob_dam=30 end
+
 -- bar speed multiplier -note 2 is crazy fast
 local bar_spd = .7 
 -- how much points will increase your anex with a bad hit 
-local bad_hit_amount = 8
+local bad_hit_amount = 6
+if difficulty_selection=="medium" then bad_hit_amount=8 end
+if difficulty_selection=="hard" then bad_hit_amount=10 end
+
 --how much points will decrease your anex with a good hit
 local good_hit_amount = 10
 
@@ -523,12 +536,6 @@ rectfill(1+60,123,60+2 + level_draw,125,level_anex_bar_color)
 
 	--important for time increase
  	gentime = time()-last
-	--debbuging pritning
-//	print(gentime)
-	//print(good_counter)
-	//print(bad_counter)
-	//print(anexity_level)
-	--end debugging 
 
 	--passive increase code
 	if gentime> passive_time_anexity_increse or gentime == time() then last = time() end
@@ -547,7 +554,6 @@ rectfill(1+60,123,60+2 + level_draw,125,level_anex_bar_color)
 	positive_counter = positive_counter + 1 * bar_spd
 	else
 		bar_flag = true
-	//	print(positive_counter)
 		positive_counter = positive_counter - 1 * bar_spd
 
 		if positive_counter == 0 then
@@ -555,6 +561,7 @@ rectfill(1+60,123,60+2 + level_draw,125,level_anex_bar_color)
 		end
 
 	end
+
 	--end bar movement code 
 
 	--code change the color of the bar when correct area
@@ -564,7 +571,8 @@ rectfill(1+60,123,60+2 + level_draw,125,level_anex_bar_color)
 		anex_bar_color = 8
 	end
 	-- end code change the color of the bar in the correct area
-function correct_hit()
+	
+	function correct_hit()
 
 		--print("good") --debug code
 		--decrease level anexity  code 
@@ -582,12 +590,13 @@ function correct_hit()
 
 		--end funcionality for decrease level
 
-				rectfill(0,0,128,0,11)
-				rectfill(0,127,128,128,11)
-				rectfill(0,0,0,128,11)
-				rectfill(127,0,127,128,11)
-
 		--put here your code for any other reacitons when correct hit 
+
+		--draws outer screen effect
+		rectfill(0,0,128,0,11)
+		rectfill(0,127,128,128,11)
+		rectfill(0,0,0,128,11)
+		rectfill(127,0,127,128,11)
 
 		-- end put here code 
 
@@ -614,25 +623,18 @@ function correct_hit()
 		-- end increase level of anexity code 
 
 
- 			rectfill(0,0,128,0,8)
-				rectfill(0,127,128,128,8)
-				rectfill(0,0,0,128,8)
-				rectfill(127,0,127,128,8)
-
 		--put here your code for any other reactions when correct hit 
 
+ 		-- draw outer screen effect	
+		rectfill(0,0,128,0,8)
+		rectfill(0,127,128,128,8)
+		rectfill(0,0,0,128,8)
+		rectfill(127,0,127,128,8)
 
 		-- end put here code 
 
 	end
 
-	--if anexity gets into 100 code
-	if anexity_level >= 100 then
-
-		-- here goes code for death or any other consequences  
-
-
-	end
 	
 	--button press handeler
 	if btn(5) then
@@ -660,16 +662,16 @@ function correct_hit()
 --- end anexityy bar code 
 
 button=-1
--- fps debug
 
-ai()
+ai() -- does enemy and item ai
+
 -- sets initial pos, should not be changed
 player.oldx=player.x player.oldy=player.y olddmapx=mapx olddmapy=mapy
 
 -- print object list
 if debugprint==1 then printlist() end
 
---begin movement code
+-- begin movement code
 velocity_y += gravity_strength*delta_t
 velocity_x -= velocity_x*friction_strength*delta_t
 
@@ -685,10 +687,7 @@ if(player.x > 123) then
 	velocity_x = 0
 end
 
-//print(onground)
-//print(velocity_x)
-//print(velocity_y)
-
+-- jump code
 player.y=player.y+(velocity_y*delta_t) mapy+=.125*(velocity_y*delta_t)
 if(checkallcol(player,1)) then
 	if(velocity_y > 0) then
@@ -714,20 +713,15 @@ else
 	button=1 --janky
 end
 
+-- if moving and on ground, animate
 if btn(1) and onground==true then animate(run_animation,player.x-2,player.y+1,run_animation2,1,1,10,false) button=1 end
 if btn(0) and onground==true then animate(run_animation,player.x-3,player.y+1,run_animation2,1,1,10,true) button=0 end
 
 -- moves map if player is in middle of screen	
-//if player.x>64 and mapx<mapwidth-8 then player.x=64 end
---if player.x<64 and mapx>=0+8 then player.x=64 end --no scroll back
 if player.y>64 and mapy<mapheight-7.875 then player.y=64 end
 if player.y<64 and mapy>=0+8 then player.y=64 end
 
-//if mapy>mapheight then mapy=mapheight end
-//if mapy<0 then mapy=0 end 
-
 -- moves all objects to correct map position
-//if player.x==64 and player.x==player.oldx and player.x!=0 then moveallx() building_data.xoffset_camera+=((olddmapx-mapx)*8) end
 if mapx>=mapwidth-16 then 
 	building_data = { --loop map
 		buildings_end = 0,
@@ -753,31 +747,28 @@ checkallcol(player,0)
 moveallx() building_data.xoffset_camera+=((olddmapx-mapx)*8) 
 if player.y==64 and player.y==player.oldy and player.y!=0 then moveally() building_data.yoffset_camera+=((olddmapy-mapy)*8) end
 
+-- death wall gameover
 if player.x<6 then wait(3) mode="gameover" end
 
-//if mapy<8 then mapy=8 end
--- prints map pos
-//print(mapx.." "..ceil(player.x),40,0,7)
-//print(mapy.." "..ceil(player.y),40,9,7)
+-- jump bounce
 if(bounce > 1) then
 	bounce = 0
 else
 	bounce = bounce + 0.010
 end
 
-if icontimer>0 then icontimer=icontimer-1 spr(icon,100,120) end
+if icontimer>0 then icontimer=icontimer-1 spr(icon,100,120) end -- display icon
 
+-- display framerate
 if debugint==1 then print(stat(7).." fps\n",0,0,7) end
-//circ(64,64,150-anexity_level,0)
 
 end
 
-
+-- call ai
 function ai()
  	local temp = objlist
 		while temp do
 		
-		 -- call cat ai (can be used as template)
 			if (temp.value.id=="cat") then catai(temp.value) end
 
 			if (temp.value.id=="blob") and temp.value.sprite>=254 then blobai(temp.value) end
@@ -794,11 +785,9 @@ function catai(obj)
 	-- pick a walking direction periodically
 	if flr(rnd(100))==1 then obj.dir=flr(rnd(3)) end
 
- -- move in said direction
+	-- move in said direction
 	if obj.dir==0 then obj.x=obj.x+spd checkallcol(obj,0) end
 	if obj.dir==1 then obj.x=obj.x-spd checkallcol(obj,0) end
-//	if obj.dir==2 then obj.y=obj.y-spd checkallcol(obj,1) end
-	//if obj.dir==3 then obj.y=obj.y+spd checkallcol(obj,1) end
 
 end
 
@@ -825,14 +814,14 @@ end
 
 function item_handling(item)
  --fire
-if item.sprite==14 then create_object("explosion",255,item.x,item.y,0,0) deleteallof("blob", player.x) if(sound_enabled) then sfx(23) end end
- 
+ if item.sprite==14 then create_object("explosion",255,item.x,item.y,0,0) deleteallof("blob", player.x) if(sound_enabled) then sfx(23) end end
+ --heart
  if item.sprite==16 then anexityshield=true end
  --cloud
  if item.sprite==44 then anexity_level-=30 icon=221 icontimer=40 end
  --spiral
  if item.sprite==40 then if anexityshield==false then anexitytimer=300 antianexitytimer=0 else anexityshield=false end end
- --blue heart
+ --blue eye
  if item.sprite==15 then antianexitytimer=300 anexitytimer=0 end
 end
 
@@ -884,9 +873,9 @@ function checkallcol(obj1,x_y)
  	local temp = objlist
 		-- go through object list
 		while temp do
-		 -- if object is too far, skip
-		 if temp.value.id=="bg" or temp.value.id=="null" or temp.value.id=="explosion" then goto continue end
-		 if (abs(obj1.x-temp.value.x)>obj1.width*4 or abs(obj1.y-temp.value.y)>obj1.height*4) then goto continue end
+			-- if object is too far or not collidable, skip
+			if temp.value.id=="bg" or temp.value.id=="null" or temp.value.id=="explosion" then goto continue end
+			if (abs(obj1.x-temp.value.x)>obj1.width*4 or abs(obj1.y-temp.value.y)>obj1.height*4) then goto continue end
 			
 			-- if object is not the object being checked, check for collision
 			if (obj1!=temp.value and temp.value.id=="plat" and flr(obj1.y)+1>=flr(temp.value.y)-6 and velocity_y<0) then goto continue end
@@ -896,14 +885,14 @@ function checkallcol(obj1,x_y)
 			temp = temp.next
 		end
 
-  if (checkcoltile(obj1, x_y)==true)	then	if x_y==1 then obj1.floor=1 end return true end
+ 		if (checkcoltile(obj1, x_y)==true)	then	if x_y==1 then obj1.floor=1 end return true end
 
 		-- if object is not the player, update oldx and oldy depending on x_y
 		if obj1.id!="player" then obj1.oldx=obj1.x obj1.oldy=obj1.y end
 
 		if x_y==1 then obj1.floor=0 end
 		
-  -- if object is player, update olddmap
+ 		-- if object is player, update olddmap
 		if obj1.id=="player" then oldmapx=mapx oldmapy=mapy end 
 
 		-- no collision occurred
@@ -913,17 +902,20 @@ end
 -- checks for collision between two objects
 function checkcol(obj1, obj2,x_y)
  bool = sprcoll(obj1.x,obj1.y,obj1.width,obj1.height,obj2.x,obj2.y,obj2.width,obj2.height)
+
+ -- handle entity collisions
  if bool==true and obj2.id=="item" then item_handling(obj2) rectfill(0,0,128,0,11)	rectfill(0,127,128,128,11)	rectfill(0,0,0,128,11)	rectfill(127,0,127,128,11) return bool end
- if bool==true and obj2.id=="blob" then if anexityshield==false then anexity_level+=25 rectfill(0,0,128,0,8)	rectfill(0,127,128,128,8)	rectfill(0,0,0,128,8)	rectfill(127,0,127,128,8) icon=222 icontimer=20 return bool else anexityshield=false return bool end end
+ if bool==true and obj2.id=="blob" then if anexityshield==false then anexity_level+=blob_dam rectfill(0,0,128,0,8)	rectfill(0,127,128,128,8)	rectfill(0,0,0,128,8)	rectfill(127,0,127,128,8) icon=222 icontimer=20 return bool else anexityshield=false return bool end end
+
  -- if collision occurs, send back to old pos based on x_y, else return false
 	if bool==true then if x_y==0 then obj1.x=obj1.oldx else obj1.y=obj1.oldy end
 			if obj1.id=="player" then mapy=oldmapy end 
-			if obj1.id=="player" and obj2.id=="sign" then  textbox(0,90,127,127,"secret text!!") end
 	end 
 	
 	return bool
 end
- 
+
+-- checks collision between objects and tiles
 function checkcoltile(obj1, x_y)
  bool = tilecoll(obj1.x,obj1.y,obj1.width,obj1.height)
  
@@ -935,9 +927,9 @@ function checkcoltile(obj1, x_y)
 	return bool
 end
 
-
+-- handles music
 function handle_music()
-	if(not sound_enabled) then return end
+		if(not sound_enabled) then return end
 	tick = stat(26)
       elapsed = tick % music_speed
       if elapsed < prev_elapsed then
@@ -955,59 +947,7 @@ function handle_music()
 	if(music_init == false) then music(0) music_init = true end
 end
 
-function testmode2()
-
-cls(14)
-
-print"hello, this is a test mode."
---begin showcase
-if(start_animate == 1) then
-	animate_once(30,30,{0,1,2},1,1,30,2)
-	animate_once(30+8,30,{3,4,5},1,1,15,3)
-	animate_once(30+8+8,30,{6,7,8},1,1,15,2)
-	animate_once(30+8+8+8,30,{6,7},1,1,10,2)
-	start_animate = 0
-end
-print("these animations are called once",0,30+8)
-print("animations currently playing: "..#animation_data_once,0,30+8+8)
-if(#animation_data_once == 0) then
-	start_animate = 1
-end
-
-animate(sprite_animation,30,30+8+8+8,sprite_animation,1,1,10)
-animate(run_animation,30+8+8,30+8+8+8,run_animation,1,1,10)
---animate(anxiety_animation,sin(bounce)*4-4,96,anxiety_animation,8,4,5)
---animate(anxiety_animation2,sin(bounce)*4-4,105,anxiety_animation2,8,4,11)
---animate(anxiety_animation3,sin(bounce)*4-4,115,anxiety_animation3,8,4,17)
-if(bounce > 1) then
-	bounce = 0
-else
-	bounce = bounce + 0.010
-end
-print("this animation is continuous",0,30+8+8+8+8)
-
-handle_animations()
-renderBuildings()
-print("# of floors: "..building_list[#building_list].number_of_floors,44,30+8+8+8+8+8,0)
-print("elements per floor: "..building_list[#building_list].elements_per_floor,0)
-print("door slot: "..building_list[#building_list].door_slot,0)
---end showcase
-end
-
-function initdebug()
-
-cls()
-
-print"press 🅾️ for mode 1,\npress ❎ for mode 2, \npress ⬇️ for mode 3,\npress ⬆️ for mode 4 \n press left arrow for mode 5"
-
-if btn(4) then mode = "test" end
-if btn(5) then mode = "test2" end
-if btn(3) then mode = "test3" end -- Mode 3 for testing 
-if btn(2) then mode = "text" end
-if btn(0) then mode = "test4" end
-
-end
-
+-- converts map tiles into objects
 function loadmap()
 	for i=0,mapwidth,1 do
 		for j=0,mapheight,1 do
@@ -1020,11 +960,11 @@ function loadmap()
 					//	create_object("sign",mget(i,j),i*8,j*8,8,8) 
 		 		 //mset(i,j,0)
 					end
-					if (mget(i,j)==247) then -- cat
+					if (mget(i,j)==247) then -- blob
 						create_object("blob",247,i*8,j*8,8,7) 
 		 		 mset(i,j,0)
 					end
-					if (mget(i,j)==52) then -- cat
+					if (mget(i,j)==52) then -- platform
 						create_object("plat",52,i*8,j*8,8,2) 
 		 		 mset(i,j,0)
 					end
@@ -1034,35 +974,13 @@ function loadmap()
 	for i=0,mapwidth,1 do
 		for j=0,mapheight,1 do
 		 if (mget(i,j)!=0) then 
-		 		if (mget(i,j)==35 or mget(i,j)==247) then -- cat
-		 		 --skip
-		 		else if (mget(i,j)!=55) and (mget(i,j)!=56) and (mget(i,j)!=57) and (mget(i,j)!=58) and (mget(i,j)!=59) and (mget(i,j)!=61) and (mget(i,j)!=46) and (mget(i,j)!=62) and (mget(i,j)!=30) and (mget(i,j)!=204) and (mget(i,j)!=246) then -- wall
-		 	//		create_object("wall",mget(i,j),i*8,j*8,8,8) 
-		 		else -- background 
-	//	 			create_object("bg",mget(i,j),i*8,j*8,8,8) 
-		 		end
-		 	end
+			--unused in modern build
 	 	end
 	 end
 	end
-	
-	for i=0,mapwidth,2 do
-	 --create_object("wall",255,i*8,-8,8*3,8)
-	 --create_object("wall",255,i*8,(mapheight)*8,8*3,8)
-	end
-	
-	for i=0,mapheight,3 do
-	 --create_object("wall",255,-8,i*8,8,8*3)
-	 --create_object("wall",255,(mapwidth)*8,i*8,8,8*3)
-	end
 end
 
-function textmode()
- cls(12)
- drawallobj()
- textbox(0,90,127,127,"test test test test test test\ntest test test this is a test\nit works!!!!!")
-end
-
+-- draws textbox
 function textbox(x1,y1,x2,y2,text)
  rectfill(x1,y1,x2,y2,0)
  rectfill(x1+1,y1+1,x2-1,y1+1,7)
@@ -1072,180 +990,10 @@ function textbox(x1,y1,x2,y2,text)
  print(sub(text,0,textindex),x1+4,y1+4,7)
  textindex+=.5
  if textindex>#text+5 and mode!="gameover" and mode!="win" and mode!="start" then textindex=0 end
- //wait(5)
 end
 
+-- used to stall time
 function wait(a) for i = 1,a do flip() end end
-
--->8
--- Test mode 3 for objects 
-function testmode3()
-
-cls(12) --Clearing the screen
-
--- Charachter still animation falling down
-
-vel = 1.25 -- Edit this for natural falling speed 
-
-
-drawallobj() --This function draws all the items in the screen
-
-if debugint==1 then print(stat(7).." fps\n",0,0,7) end
-
-ai()
--- sets initial pos, should not be changed
-player.oldx=player.x player.oldy=player.y olddmapx=mapx olddmapy=mapy
-
-//spd=1
--- X cordinate movement
-if btn(1) then player.x=player.x+spd checkallcol(player,0) mapx+=.125*spd end
-if btn(0) then player.x=player.x-spd checkallcol(player,0) mapx-=.125*spd end
--- Y cordinate movement
-
-
---Code that makes the player jump and fall if not doing nothing 
-if btn(4) and player.floor==1
-then 
-player.y=player.y-spd checkallcol(player,1) mapy-=.125*spd
-ay = initial_acceleration
-player.floor = 0
-jumping = true
-elseif btn(4) and jumping then
-	player.y=player.y-spd checkallcol(player,1) mapy-=.125*spd
-	ay += alpha
-	if ay > gravity then
-		ay = gravity
-		jumping = false
-	end
-else 
-	ay = gravity
-	jumping = false
-	player.y=player.y+spd checkallcol(player,1) mapy+=.125*spd
-end 
-
-vy += ay 
-y_jump += vy-- i dont think this is in use !
-
----HELP I CANT NOT FIND A WAY TO DETECT IF THE PLAYER IS ON THE GROUND OR NOT
-
-//if mget (player.x , player.y + 1) == true then
-	//onground = true
-	//vy = 0
-//end
-
-
--- END OF JUMPING CODE
-
-
-
-
-
-if btn(3) then player.y=player.y+spd checkallcol(player,1) mapy+=.125*spd end
-
-end ---- END MODE 3  
-
-
--->8
--- Mode 4 anexity bar
-
-function test4()
-cls(12)
-
-local movement_bar = 255
-local empty_bar = 242
-local left_bar = 240
-local right_bar = 245
-local seconds = 2 -- change this to change the speed of the bar 
-
-spr(left_bar, 0 ,112) -- inital bar
-spr(empty_bar, 8 ,112) -- empty bar
-spr(empty_bar, 16 ,112) -- empty bar 
-spr(empty_bar, 24 ,112) -- empty bar
-spr(right_bar, 32 ,112) -- end bar 
- 
-
- gentime = time()-last
-	print(gentime)
-	
-	if gentime>9 or gentime == time() then last = time() end
-
-	if gentime > 1 and gentime < 2 then
-		spr(movement_bar, 8 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
-	if gentime > 2  and gentime < 3 then
-		spr(movement_bar, 16 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
-	
-	if gentime > 3 and gentime < 4 then
-		spr(movement_bar, 24 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end 
-
-	if gentime > 4 and gentime < 5 then
-		spr(movement_bar, 32 , 112)
-		if btn(5) then
-			correct_hit()
-		end
-	end
-	
-	if gentime > 5  and gentime < 6 then
-		spr(movement_bar, 24 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end
-
-	if gentime > 6  and gentime < 7 then
-		spr(movement_bar, 16 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end
-
-	if gentime > 7  and gentime < 8 then
-		spr(movement_bar, 8 , 112)
-		if btn(5) then 
-			bad_hit()
-		end
-	end
-
-	if gentime > 8  and gentime < 9 then
-		spr(movement_bar, 0 , 112)
-		if btn(5) then
-			correct_hit()
-		end
-	end
-	
-
-
-	function correct_hit()
-
-		cls(3)
-		print("Good")
-
-	end 
-
-	function bad_hit()
-
-		cls(8)
-		print("Bad")
-
-
-	end
-
-
-end
-
-
-
 -->8
 -- create_object(unique id,sprite number, x position, y position, object width, object height)
 function create_object(uid,rsprite,rx,ry,rwidth,rheight)
@@ -1274,12 +1022,13 @@ inity=ry
 	 end
 	end
 
+-- add object to global list
 addtolist(a)
 
 return a
 end
 
- 
+-- add object to global list
 function addtolist(a)
  	objlist= {
  		next=objlist,
@@ -1288,17 +1037,17 @@ function addtolist(a)
  	if debugprint==1 then print("added object"..a.sprite) end
 end
  
- function printlist()
-  local temp = objlist
-  local temp2 = 0
-  print("object list:")
-		while temp do
-			print(temp.value.id)
-			temp = temp.next
-			temp2+=1
-			if temp2>16 then return end
-		end
+function printlist()
+ local temp = objlist
+ local temp2 = 0
+ print("object list:")
+	while temp do
+		print(temp.value.id)
+		temp = temp.next
+		temp2+=1
+		if temp2>16 then return end
 	end
+end
 	
 __gfx__
 14416666146666664066666666614666666146666661466666614666146666661466666666666666666666666c6666c66c6666c6444444446688666666611666
