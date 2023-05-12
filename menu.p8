@@ -25,56 +25,20 @@ menu_icon=flr(rnd(4))+1
 
 function resetmode() -- restart variables
 
-objlist=nil
-
---debug switch
-debugint=0 -- shows collision boxes and coords
-debugprint=0 -- shows object list
-
---animation test vars
-start_animate = 1
-sprite_animation = {24,25}
-run_animation = {3,4,5,6}
-run_animation2 = {3,4,5,6}
-jump_animation = {8}
-anxiety_animation = {64,72,128,136,128,72}
-anxiety_animation2 = {64,72,128,136,128,72}
-anxiety_animation3 = {64,72,128,136,128,72}
-anxiety_animation4 = {64,72,128,136,128,72}
-anxiety_animation5 = {64,72,128,136,128,72}
-anxiety_animation6 = {64,72,128,136,128,72}
-anxiety_animation7 = {64,72,128,136,128,72}
-anxiety_animation8 = {64,72,128,136,128,72}
-anxiety_animation9 = {64,72,128,136,128,72}
-anxiety_animation10 = {64,72,128,136,128,72}
-anxiety_animation11 = {64,72,128,136,128,72}
-anxiety_animation12 = {64,72,128,136,128,72}
-blob_animation = {247,248,249,250,251,252}
-bounce = 0
---
-a={}
-
--- end
-
-
 -- Menu selection 
 
 menu_seleciton = "start"
 ball_y = 92
 
 -- end
+
 --Setting selection
 
 s_bally = 52
 setting_selection = "sound"
 stepbystepflag = false
+
 -- end 
-
-
-
-
-mapwidth=128 -- map width
-mapheight=30 -- map height
 
 palt(6, true) -- green color as transparency is true
 palt(0, false) -- black color as transparency is false

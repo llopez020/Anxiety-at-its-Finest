@@ -71,6 +71,7 @@ vel = spd*2 -- Edit this for natural falling speed
 button=-1
 
 blob_dam=10
+win_timer=0
 
 max_height = -20            -- height
 gravity = 0.15              -- grav
@@ -109,25 +110,6 @@ friction_strength = 10.0
 jump_strength = 5000.0
 deathtext=0
 -- stop tinker
-
--- end
-
-
--- Menu selection 
-
-menu_seleciton = "start"
-ball_y = 92
-
--- end
---Setting selection
-
-s_bally = 52
-setting_selection = "sound"
-stepbystepflag = false
--- end 
-
-
-
 
 mapwidth=128 -- map width
 mapheight=30 -- map height
@@ -176,211 +158,6 @@ if mode == "game" then gamemode() end -- game test
 if mode == "gameover" then gameover() end -- death screen
 if mode == "win" then win() end -- win screen
 if mode == "start" then start() end -- starting cutscene
-if mode == "menu" then menu() end -- main menu
-if mode == "settings" then settings() end --settings
-
-end
-
-
-function p2(s,x,y,c) -- 26 tokens, 6.2667 seconds
-for i in all(split'\f0\-f,\-h,\|f,\|h') do
-	?i..s,x,y
-end
-	?s,x,y,c
-end
---Menu method 
---needs background and color 
-function menu()
-	cls(12) -- blue background
-	
-	-- NEEDS A BACKGROUND DESSIGN 
-	map(0,16)
-	spr(199,8,80) -- remove the small cloud
-	-- END 
-	
-	
-	p2("start", 50 , 90 , 14)
-	--print ("start" , 50 , 90,0)
-	p2("settings", 50 , 100 , 14)
-	--print ("settings" , 50 , 100,0)
-	--print(stepbystepflag) -- Debug 
-	
-	circfill (45 , ball_y , 2 , 8)
-	
-	if btn(3) and stepbystepflag == false then 
-	
-		if menu_seleciton == "start" then
-	
-			menu_seleciton = "settings"
-	
-			ball_y = ball_y + 10
-	
-			stepbystepflag = true
-	
-	
-		end
-	end 
-	
-	if btn(2) and stepbystepflag == false then
-	
-		if menu_seleciton == "settings" then
-			menu_seleciton = "start"
-			ball_y = ball_y - 10
-	
-			stepbystepflag = true
-		end
-	
-	end 
-	
-	if btn(5) and stepbystepflag == false then 
-	
-	if menu_seleciton == "start" then  
-		mode = "start"
-		stepbystepflag = true
-	end
-	
-	if menu_seleciton == "settings" then
-		mode ="settings"
-		stepbystepflag = true
-	end 
-	
-	end -- end button x
-	
-	if not btn(2)  and  not btn(3) and not btn(5) then
-	
-		stepbystepflag = false
-		
-	end 
-	
-	end -- end menu
-	
-	function settings ()
-	
-	
-	cls(12) -- blue background
-	map(0,16)	
-	spr(199,8,80) -- remove the small cloud
-	p2("sound", 30 , 50 , 14)
-	--print ("sound" , 30 , 50 , 0)
-	p2(sound_selection, 70 , 50 , soundcolor(sound_selection))
-	--print (sound_selection , 80 , 50,0)
-	p2("dificulty", 30 , 60 , 14)
-	--print("dificulty" , 30 ,60,0)
-	p2(difficulty_selection, 70 , 60 , dangercolor(difficulty_selection))
-	--print(difficulty_selection , 70 , 60,0 )
-	p2("back", 30 , 80 , 14)
-	--print("back", 30 , 80,0)
-	
-	circfill(25 , s_bally , 2, 8 )
-	
-	if btn(3) then
-	
-		if setting_selection == "sound" and stepbystepflag == false then 
-	
-		s_bally = s_bally + 10 
-		setting_selection = "difficulty"
-		stepbystepflag = true
-		end
-	
-		if setting_selection == "difficulty" and stepbystepflag == false then
-		s_bally = s_bally + 20
-		setting_selection = "back"
-		stepbystepflag = true
-		end
-	
-	end
-	
-	if btn (2) then 
-	
-		if setting_selection == "back" and stepbystepflag == false then
-	
-			s_bally = s_bally - 20 
-			setting_selection = "difficulty"
-			stepbystepflag = true
-		end
-		if setting_selection == "difficulty" and stepbystepflag == false then
-			s_bally = s_bally - 10 
-			setting_selection = "sound"
-			stepbystepflag = true
-		end
-	
-	end 
-	
-	if btn(5) then 
-	
-		if setting_selection == "sound" and stepbystepflag== false then
-	
-			if sound_selection == "on" then 
-				sound_enabled = false
-				sound_selection = "off"
-				stepbystepflag = true
-			else
-				sound_enabled = true
-				sound_selection = "on"
-				stepbystepflag = true
-			end
-		end
-	
-	
-		if setting_selection == "difficulty" and stepbystepflag == false then
-	
-			if difficulty_selection == "easy" then
-				difficulty_selection = "medium"
-				stepbystepflag = true
-			elseif difficulty_selection =="medium" then
-				difficulty_selection = "hard"
-				stepbystepflag = true 
-			else 
-				difficulty_selection = "easy"
-				stepbystepflag = true
-			end
-	
-		end 
-	
-		if setting_selection == "back" and stepbystepflag == false then
-			mode = "menu"
-			stepbystepflag = true 
-		end
-	
-	end
-	
-	--ensures that one movement at one time 
-	if not btn(2) and not btn(3) and not btn(5) then
-	
-	stepbystepflag = false
-	
-	end 
-	
-	end 
-	-- end settings 
-
-function dangercolor(diflev)
-
-if diflev == "easy" then
-
-return 11
-end
-
-if diflev == "medium"then 
-return 9
-end 
-
-if diflev =="hard" then
-return 8
-end
-end
-
-function soundcolor(soundval)
-
-if soundval == "on" then 
-
-	return 11
-end
-
-if soundval == "off" then
-
-	return 8
-end
 
 end
 
@@ -422,8 +199,10 @@ end
 
 -- winning screen
 function win()
+ rectfill(0,0 , 128,128,0)
+ spr(207,64-4,50)
  
- textbox(0,90,127,127,"you win!\npress ❎ to restart")
+ textbox(0,90,127,127,"you win!\nyour anxieties have been\nquelled, for now...\npress ❎ to restart")
  if btn(❎) and textindex>30 then mode="game" resetmode() end
  
 end
@@ -769,6 +548,9 @@ else
 end
 
 if icontimer>0 then icontimer=icontimer-1 spr(icon,100,120) end -- display icon
+
+win_timer+=0.02
+if win_timer>500 then mode="win" end
 
 -- display framerate
 if debugint==1 then print(stat(7).." fps\n",0,0,7) end
