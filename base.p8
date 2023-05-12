@@ -6,6 +6,7 @@ function _init()
 cls()
 
 mode = "menu" -- sets mode to debug menu
+sound_enabled = true
 
 #include collision.lua
 #include animation.lua
@@ -299,9 +300,11 @@ function menu()
 		if setting_selection == "sound" and stepbystepflag== false then
 	
 			if sound_selection == "on" then 
+				sound_enabled = false
 				sound_selection = "off"
 				stepbystepflag = true
 			else
+				sound_enabled = true
 				sound_selection = "on"
 				stepbystepflag = true
 			end
@@ -388,7 +391,7 @@ end
 
 function gameover()
  
- if(game_over_flag == false) then sfx(18) music(5) game_over_flag = true end
+ if(game_over_flag == false) then if(sound_enabled) then sfx(18) music(5) end game_over_flag = true end
  if textindex==0 then gmt=flr(rnd(8)) end
  rectfill(0,0 , 128,128,0)
  
@@ -672,7 +675,7 @@ velocity_x -= velocity_x*friction_strength*delta_t
 
 if btn(1) then velocity_x += player_speed*delta_t+(anexity_level*anexity_mult) player.dir=1 end
 if btn(0) then velocity_x -= player_speed*delta_t+(anexity_level*anexity_mult) player.dir=2 end
-if btn(4) and onground==true then velocity_y -= jump_strength*delta_t sfx(16) end
+if btn(4) and onground==true then velocity_y -= jump_strength*delta_t if(sound_enabled) then sfx(16) end end
 player.x=player.x+(velocity_x*delta_t) //mapx+=.125*(velocity_x*delta_t)
 if(checkallcol(player,0)) then
 	velocity_x = 0
@@ -822,7 +825,7 @@ end
 
 function item_handling(item)
  --fire
-if item.sprite==14 then create_object("explosion",255,item.x,item.y,0,0) deleteallof("blob", player.x) sfx(23) end
+if item.sprite==14 then create_object("explosion",255,item.x,item.y,0,0) deleteallof("blob", player.x) if(sound_enabled) then sfx(23) end end
  
  if item.sprite==16 then anexityshield=true end
  --cloud
@@ -887,7 +890,7 @@ function checkallcol(obj1,x_y)
 			
 			-- if object is not the object being checked, check for collision
 			if (obj1!=temp.value and temp.value.id=="plat" and flr(obj1.y)+1>=flr(temp.value.y)-6 and velocity_y<0) then goto continue end
- 		if (temp.value.id=="item" or temp.value.id=="blob") then if checkcol(obj1, temp.value,x_y)==true then if (temp.value.id=="item") then sfx(17) else sfx(22) end temp.value.sprite=255 temp.value.id="null" end goto continue end			
+ 		if (temp.value.id=="item" or temp.value.id=="blob") then if checkcol(obj1, temp.value,x_y)==true then if(sound_enabled) then if (temp.value.id=="item") then sfx(17) else sfx(22) end end temp.value.sprite=255 temp.value.id="null" end goto continue end			
 			if (obj1!=temp.value and temp.value.id!="bg" and checkcol(obj1, temp.value,x_y)==true) then if x_y==1 then obj1.floor=1 end return true end
 			::continue::
 			temp = temp.next
@@ -934,6 +937,7 @@ end
 
 
 function handle_music()
+	if(not sound_enabled) then return end
 	tick = stat(26)
       elapsed = tick % music_speed
       if elapsed < prev_elapsed then
